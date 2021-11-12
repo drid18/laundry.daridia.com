@@ -1,0 +1,1 @@
+npx sequelize-auto -h localhost -d daridiac_laundry -u root -x 4k535 -p 3306  --dialect mysql -o ./src/model -t activity cash_flow customer product transaction userapp -l es6
