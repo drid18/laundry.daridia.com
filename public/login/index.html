@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- <link rel="stylesheet" href="../node_modules/sweetalert2/dist/sweetalert2.min.css"> -->
+
+    <title>Laundry DariDIA</title>
+  </head>
+  <body>
+    <div class="container text-center mt-5 pt-5">
+      <div class="d-flex justify-content-center display mb-5">Laundry DariDIA.com</div>
+      <div id="login-box" class="container mb-5" style="max-width: 500px">
+        <div class="form-floating mb-3">
+          <input type="text" class="form-control rounded-pill" id="username-input" placeholder="nama pengguna" />
+          <label for="username-input">Nama Pengguna</label>
+        </div>
+        <div class="form-floating">
+          <input type="password" class="form-control rounded-pill" id="password-input" placeholder="kata sandi" />
+          <label for="password-input">Kata Sandi</label>
+        </div>
+        <hr />
+        <div class="d-grid gap-2 mt-3">
+          <button id="btn-login" type="button" class="btn btn-outline-dark rounded-pill mb-4">Masuk</button>
+          <i>Belum punya akun?</i>
+          <button id="btn-show-registration" type="button" class="btn btn-outline-secondary rounded-pill">Buat Akun Baru</button>
+        </div>
+      </div>
+      <div id="regis-box" class="container mb-5" style="max-width: 500px; display: none;">
+        <div class="form-floating mb-3">
+          <input type="text" class="form-control rounded-pill" id="reg-username" placeholder="nama pengguna" />
+          <label for="reg-username">Nama Pengguna</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input type="text" class="form-control rounded-pill" id="reg-fullname" placeholder="nama lengkap" />
+          <label for="reg-fullname">Nama Lengkap</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input type="text" class="form-control rounded-pill" id="reg-phone" placeholder="nomor hp" />
+          <label for="reg-phone">Nomor HP</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input type="text" class="form-control rounded-pill" id="reg-email" placeholder="email" />
+          <label for="reg-email">Email</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input type="password" class="form-control rounded-pill" id="reg-password" placeholder="kata sandi" />
+          <label for="reg-password">Kata Sandi</label>
+        </div>
+        <div class="form-floating">
+          <input type="password" class="form-control rounded-pill" id="reg-conf-password" placeholder="konfirmasi kata sandi" />
+          <label for="reg-conf-password">Konfirmasi Kata Sandi</label>
+        </div>
+        <hr />
+        <div class="d-grid gap-2 mt-3">
+          <button id="btn-regis" type="button" class="btn btn-outline-dark rounded-pill mb-4">Daftar</button>
+          <i>Sudah punya akun?</i>
+          <button id="btn-show-login" type="button" class="btn btn-outline-secondary rounded-pill">Masuk</button>
+        </div>
+      </div>
+    </div>
+    <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../node_modules/crypto-js/crypto-js.js"></script>
+    <script src="../node_modules/sweetalert2/dist/sweetalert2.all.min.js"></script>
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../node_modules/axios/dist/axios.js"></script>
+    <script src="./index.js" type="module"></script>
+  </body>
+</html>
