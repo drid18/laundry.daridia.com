@@ -47,6 +47,10 @@ class transaction extends Sequelize.Model {
     status: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    branch: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     sequelize,

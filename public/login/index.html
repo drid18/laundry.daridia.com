@@ -7,6 +7,9 @@
 
     <!-- Bootstrap CSS -->
     <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="../style.css">
+
     <!-- <link rel="stylesheet" href="../node_modules/sweetalert2/dist/sweetalert2.min.css"> -->
 
     <title>Laundry DariDIA</title>
@@ -14,23 +17,32 @@
   <body>
     <div class="container text-center mt-5 pt-5">
       <div class="d-flex justify-content-center display mb-5">Laundry DariDIA.com</div>
-      <div id="login-box" class="container mb-5" style="max-width: 500px">
+      <form action="javascript:void(0);" id="login-box" class="container mb-5" style="max-width: 500px">
         <div class="form-floating mb-3">
           <input type="text" class="form-control rounded-pill" id="username-input" placeholder="nama pengguna" />
           <label for="username-input">Nama Pengguna</label>
         </div>
-        <div class="form-floating">
-          <input type="password" class="form-control rounded-pill" id="password-input" placeholder="kata sandi" />
-          <label for="password-input">Kata Sandi</label>
+        <div class="input-group mb-3">
+          <div class="form-floating" style="width: 80%;">
+            <input type="password" class="form-control rounded-pill-start" id="password-input" placeholder="kata sandi" />
+            <label for="password-input">Kata Sandi</label>
+          </div>
+          <span class="input-group-text rounded-pill-end bg-light text" style="width: 20%;">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="view-password" />
+              <label class="form-check-label" for="view-password"> <i class="fa fa-search" aria-hidden="true"></i></label>
+            </div>
+          </span>
         </div>
+
         <hr />
         <div class="d-grid gap-2 mt-3">
-          <button id="btn-login" type="button" class="btn btn-outline-dark rounded-pill mb-4">Masuk</button>
+          <button id="btn-login" type="submit" class="btn btn-outline-dark rounded-pill mb-4">Masuk</button>
           <i>Belum punya akun?</i>
           <button id="btn-show-registration" type="button" class="btn btn-outline-secondary rounded-pill">Buat Akun Baru</button>
         </div>
-      </div>
-      <div id="regis-box" class="container mb-5" style="max-width: 500px; display: none;">
+      </form>
+      <div id="regis-box" class="container mb-5" style="max-width: 500px; display: none">
         <div class="form-floating mb-3">
           <input type="text" class="form-control rounded-pill" id="reg-username" placeholder="nama pengguna" />
           <label for="reg-username">Nama Pengguna</label>

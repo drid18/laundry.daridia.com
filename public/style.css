@@ -26,10 +26,11 @@
 
 body {
   font-family: "Poppins", sans-serif;
+  /* font-family: Consolas, monaco, monospace; */
 }
 
 table {
-    font-size: 10pt;
+  font-size: 10pt;
 }
 
 thead {
@@ -38,19 +39,19 @@ thead {
 }
 
 .bgs-dark {
-    background-color: #34495e;
+  background-color: #34495e;
 }
 .bgs-bluelight {
-    color: whitesmoke;
-    background-color: #3498db;
+  color: whitesmoke;
+  background-color: #3498db;
 }
 .bgs-greenlight {
-    color: whitesmoke;
-    background-color: #2ecc71;
+  color: whitesmoke;
+  background-color: #2ecc71;
 }
 .bgs-redlight {
-    color: whitesmoke;
-    background-color: #e74c3c;
+  color: whitesmoke;
+  background-color: #e74c3c;
 }
 
 /* width */
@@ -74,4 +75,28 @@ thead {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: black;
+}
+
+.rounded-pill-start {
+  border-top-left-radius: 50px;
+  border-bottom-left-radius: 50px;
+}
+.rounded-pill-end {
+  border-top-right-radius: 50px;
+  border-bottom-right-radius: 50px;
+}
+
+.row p {
+  margin-bottom: 5px;
+}
+
+#struct-print {
+  font-family: Consolas, monaco, monospace;
+  color: #000000;
+}
+#struct-print p {
+  font-size: smaller;
+}
+#struct-print div {
+  font-size: smaller;
 }

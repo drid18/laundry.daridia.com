@@ -17,7 +17,7 @@ $('#btn-login').on('click', function () {
         // console.log(response.data);
         // alert(JSON.stringify(response.data.rc))
         if (response.data.rc === "00") {
-            swal.showSuccess('Mengarahkan ke halaman dashboard')
+            swal.showLoading('Mengarahkan ke halaman dashboard')
             window.location.href = '/dashboard'
         } else {
             swal.showFailed(response.data.rm)
@@ -26,6 +26,15 @@ $('#btn-login').on('click', function () {
         console.error(error);
         alert(JSON.stringify(error))
     });
+})
+
+$('#view-password').on('click', function () {
+    var x = document.getElementById("password-input");
+    if (x.type === "password") {
+        x.type = "text";
+    } else {
+        x.type = "password";
+    }
 })
 
 $('#btn-show-registration').on('click', function () {

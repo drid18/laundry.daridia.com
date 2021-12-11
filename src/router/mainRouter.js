@@ -1,4 +1,5 @@
 const express = require('express')
+const { branchController } = require('../controller/branchController')
 const { customerController } = require('../controller/customerController')
 const { mainController } = require('../controller/mainController')
 const { productController } = require('../controller/productController')
@@ -31,6 +32,7 @@ class mainRouter {
                 case '/service/user/update': response = await userController.updateUser(req); break;
                 case '/service/user/delete': response = await userController.deleteUser(req); break;
                 case '/service/user/setstatus': response = await userController.setStatus(req); break;
+                case '/service/user': response = await userController.getall(req); break;
 
                 case '/service/user/login': response = await sessionController.login(req); break;
                 case '/service/user/logout': response = await sessionController.logout(req); break;
@@ -40,6 +42,12 @@ class mainRouter {
                 case '/service/product/update': response = await productController.updateProduct(req); break;
                 case '/service/product/delete': response = await productController.deleteProduct(req); break;
                 case '/service/product': response = await productController.getall(req); break; 
+                
+                case '/service/branch/add': response = await branchController.addBranch(req); break;
+                case '/service/branch/update': response = await branchController.updateBranch(req); break;
+                case '/service/branch/delete': response = await branchController.deleteBranch(req); break;
+                case '/service/branch': response = await branchController.getall(req); break; 
+                case '/service/branch/id': response = await branchController.getbyid(req); break; 
 
                 case '/service/customer': response = await customerController.getAll(req); break; 
                 case '/service/customer/add': response = await customerController.addCustomer(req); break; 
@@ -49,11 +57,16 @@ class mainRouter {
                 case '/service/customer/find/name': response = await customerController.findbyname(req); break;
 
                 case '/service/transaction': response = await transactionController.getAll(req); break; 
+                case '/service/transaction/today': response = await transactionController.getToday(req); break; 
+                case '/service/transaction/filtered': response = await transactionController.getfiltered(req); break; 
+                case '/service/transaction/incomplete': response = await transactionController.getAllNotDone(req); break; 
                 case '/service/transaction/add': response = await transactionController.addTransaction(req); break; 
                 case '/service/transaction/update': response = await transactionController.editTransaction(req); break; 
                 case '/service/transaction/delete': response = await transactionController.deleteTransaction(req); break; 
-                case '/service/transaction/today': response = await transactionController.gettoday(req); break; 
                 case '/service/transaction/process': response = await transactionController.getundone(req); break; 
+                case '/service/transaction/report/data': response = await transactionController.getReportData(req); break;
+                case '/service/transaction/report/sum/monthlyyear': response = await transactionController.getReportSumMonthlyYear(req); break;
+                case '/service/transaction/report/count/monthlyyear': response = await transactionController.getReportMonthlyYear(req); break; 
                 
                 default: response = { rc: 99, rm: "path not found" }; break;
             }

@@ -47,6 +47,14 @@ class userapp extends Sequelize.Model {
     type: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    branch: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    info: {
+      type: DataTypes.TEXT,
+      allowNull: true
     }
   }, {
     sequelize,

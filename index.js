@@ -10,9 +10,21 @@ logger.info("--> Starting node")
 
 app.use(express.json())
 
-app.use(express.static('public'))
+app.use(session({ secret: 'laundryapp', cookie: { maxAge: 60000 * 24 * 30} }))
 
-app.use(session({ secret: 'laundryapp', cookie: { maxAge: 60000 * 24 } }))
+// app.use('/', function (req, res) {
+//     res.redirect('/login')
+// })
+
+app.use('/dashboard', function (req, res, next) {
+    if (req.session.userid) {
+        next()
+    } else {
+        res.redirect('/login')
+    }
+})
+
+app.use(express.static('public'))
 
 mainRouter.init(app)
 

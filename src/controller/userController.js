@@ -1,6 +1,6 @@
 const express = require('express')
 const { log4js } = require('../utility/logger')
-const { dbmodel } = require('../model/db')
+const { dbmodel, _dbmodel } = require('../model/db')
 const logger = log4js.getLogger(require('path').basename(__filename, '.js'))
 const axios = require("axios").default;
 const { cs } = require('../utility/constants');
@@ -46,6 +46,9 @@ class userController {
             var fullname = req.body.fullname
             var phone_number = req.body.phone_number
             var email = req.body.email
+            var type = req.body.type
+            var status = req.body.status
+            var branch = req.body.branch
 
             var updateUser = await dbmodel.userapp.findByPk(userid)
 
@@ -55,6 +58,9 @@ class userController {
             updateUser.fullname = fullname
             updateUser.phone_number = phone_number
             updateUser.email = email
+            updateUser.type = type
+            updateUser.status = status
+            updateUser.branch = branch
 
             await updateUser.save()
 
@@ -83,6 +89,24 @@ class userController {
             userdata.status = status
             await userdata.save()
             return ({ rc: "00", rm: "success", data: userdata })
+        } catch (error) {
+            return (error)
+        }
+    }
+
+    static async getall(req = express.request) {
+        try {
+            var [user, meta] = await _dbmodel.query(`
+            select
+                u.*,
+                b.id as cabang_id,
+                b.name as cabang_name
+            from
+                userapp u
+            left join branch b on
+                u.branch = b.id
+            `)
+            return ({ rc: "00", rm: "success", data: user })
         } catch (error) {
             return (error)
         }

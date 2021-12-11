@@ -1,10 +1,9 @@
 import { render, html } from "../node_modules/lit-html/lit-html.js";
 
-
 export class swal {
-    static showLoading() {
+    static showLoading(message) {
         Swal.fire({
-            title: 'Mohon tunggu, sedang memuat data',
+            title: message ? message :'Mohon tunggu, sedang memuat data',
             allowOutsideClick: false,
             allowEscapeKey: false,
             didOpen: () => {
