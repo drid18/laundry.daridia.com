@@ -112,6 +112,8 @@ class transactionController {
 
     static async getToday(req = express.request) {
         try {
+
+            console.log(req.query);
             var [transaction, meta] = await _dbmodel.query(/*sql */`
                 select
                     t.*,
@@ -121,6 +123,7 @@ class transactionController {
                 left join branch b on
                     b.id = t.branch
                 where DATE(t.cr_time) = CURDATE()
+                ${req.query.b ? 'and t.branch=' + req.query.b : ''}
             `)
             return ({ rc: "00", rm: "success", data: transaction })
         } catch (error) {
@@ -149,10 +152,9 @@ class transactionController {
                     DATE(cr_time) between '${startdate}' and '${enddate}'
                     ${status !== '99' ? `and t.status = ${status}` : ''}
                     ${payment !== '99' ? `and t.payment = ${payment}` : ''}
+                    ${req.query.b ? 'and t.branch=' + req.query.b : ''}
             `;
-
             logger.info('Query: ' + query)
-
             var [transaction, meta] = await _dbmodel.query(query)
             return ({ rc: "00", rm: "success", data: transaction })
         } catch (error) {
@@ -173,6 +175,7 @@ class transactionController {
                     b.id = t.branch
                 where
                    t.status <> 2
+                   ${req.query.b ? 'and t.branch=' + req.query.b : ''}
             `;
 
             logger.info('Query: ' + query)
@@ -194,7 +197,9 @@ class transactionController {
                 from \`transaction\` t
                 left join branch b on
                     b.id = t.branch 
-                where t.status != 1`)
+                where t.status != 1
+                ${req.query.b ? 'and t.branch=' + req.query.b : ''}
+                `)
             return ({ rc: "00", rm: "success", data: transaction })
         } catch (error) {
             return (error)
@@ -214,7 +219,8 @@ class transactionController {
                 month(cr_time) = month(now())
                 and year(cr_time) = '2021'
                 and t.status = 2
-                and t.payment = 1) as current_count_trx,
+                and t.payment = 1
+                ${req.query.b ? 'and t.branch=' + req.query.b : ''} ) as current_count_trx,
             (
             select
                 count(*)
@@ -224,7 +230,8 @@ class transactionController {
                 month(cr_time) = month(now())-1
                     and year(cr_time) = '2021'
                         and t.status = 2
-                        and t.payment = 1) as previous_count_trx,
+                        and t.payment = 1
+                        ${req.query.b ? 'and t.branch=' + req.query.b : ''} ) as previous_count_trx,
             (
             select
                 sum(t.amount)
@@ -234,7 +241,8 @@ class transactionController {
                 month(cr_time) = month(now())
                     and year(cr_time) = '2021'
                         and t.status = 2
-                        and t.payment = 1) as current_sum_trx,
+                        and t.payment = 1
+                        ${req.query.b ? 'and t.branch=' + req.query.b : ''} ) as current_sum_trx,
             (
             select
                 sum(t.amount)
@@ -244,7 +252,8 @@ class transactionController {
                 month(cr_time) = month(now())-1
                     and year(cr_time) = '2021'
                         and t.status = 2
-                        and t.payment = 1) as previous_sum_trx
+                        and t.payment = 1
+                        ${req.query.b ? 'and t.branch=' + req.query.b : ''}) as previous_sum_trx
         
             `
             var [transaction, meta] = await _dbmodel.query(query)
@@ -256,21 +265,26 @@ class transactionController {
 
     static async getReportSumMonthlyYear(req = express.request) {
         try {
-            var year = req.body.year
-            var arrayCount = []
             var [transaction, meta] = await _dbmodel.query(/*sql */`
-                select (select sum(t.amount) as count from \`transaction\` t where month(cr_time) = 1 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'januari' as bulan
-                union select (select sum(t.amount) as count from \`transaction\` t where month(cr_time) = 2 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'februari' as bulan
-                union select (select sum(t.amount) as count from \`transaction\` t where month(cr_time) = 3 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'maret' as bulan
-                union select (select sum(t.amount) as count from \`transaction\` t where month(cr_time) = 4 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'april' as bulan
-                union select (select sum(t.amount) as count from \`transaction\` t where month(cr_time) = 5 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'mei' as bulan
-                union select (select sum(t.amount) as count from \`transaction\` t where month(cr_time) = 6 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'juni' as bulan
-                union select (select sum(t.amount) as count from \`transaction\` t where month(cr_time) = 7 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'juli' as bulan
-                union select (select sum(t.amount) as count from \`transaction\` t where month(cr_time) = 8 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'agustus' as bulan
-                union select (select sum(t.amount) as count from \`transaction\` t where month(cr_time) = 9 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'september' as bulan
-                union select (select sum(t.amount) as count from \`transaction\` t where month(cr_time) = 10 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'oktober' as bulan
-                union select (select sum(t.amount) as count from \`transaction\` t where month(cr_time) = 11 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'november' as bulan
-                union select (select sum(t.amount) as count from \`transaction\` t where month(cr_time) = 12 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'desember' as bulan
+                select
+                    sum(trx.amount) as jumlah,
+                    trx.timed as bulan
+                from
+                    (
+                    select
+                        t.id,
+                        t.amount,
+                        DATE_FORMAT(t.cr_time, '%Y-%m') as timed
+                    from
+                        \`transaction\` t
+                    where
+                        t.status = 2
+                        and t.payment = 1
+                        and DATE_FORMAT(t.cr_time, '%Y') = \'${new Date().getFullYear()}\'
+                        ${req.query.b ? 'and t.branch=' + req.query.b : ''} ) as trx
+                group by
+                    trx.timed
+                order by bulan asc
             `)
             return ({ rc: "00", rm: "success", data: transaction })
         } catch (error) {
@@ -282,18 +296,24 @@ class transactionController {
             var year = req.body.year
             var arrayCount = []
             var [transaction, meta] = await _dbmodel.query(/*sql */`
-                select (select count(*) as count from \`transaction\` t where month(cr_time) = 1 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'januari' as bulan
-                union select (select count(*) as count from \`transaction\` t where month(cr_time) = 2 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'februari' as bulan
-                union select (select count(*) as count from \`transaction\` t where month(cr_time) = 3 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'maret' as bulan
-                union select (select count(*) as count from \`transaction\` t where month(cr_time) = 4 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'april' as bulan
-                union select (select count(*) as count from \`transaction\` t where month(cr_time) = 5 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'mei' as bulan
-                union select (select count(*) as count from \`transaction\` t where month(cr_time) = 6 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'juni' as bulan
-                union select (select count(*) as count from \`transaction\` t where month(cr_time) = 7 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'juli' as bulan
-                union select (select count(*) as count from \`transaction\` t where month(cr_time) = 8 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'agustus' as bulan
-                union select (select count(*) as count from \`transaction\` t where month(cr_time) = 9 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'september' as bulan
-                union select (select count(*) as count from \`transaction\` t where month(cr_time) = 10 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'oktober' as bulan
-                union select (select count(*) as count from \`transaction\` t where month(cr_time) = 11 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'november' as bulan
-                union select (select count(*) as count from \`transaction\` t where month(cr_time) = 12 and year(cr_time) = ${year} and t.status = 2 and t.payment = 1) as jumlah,'desember' as bulan
+                select
+                    count(trx.timed) as jumlah,
+                    trx.timed as bulan
+                from
+                    (
+                    select
+                        t.id,
+                        DATE_FORMAT(t.cr_time, '%Y-%m') as timed
+                    from
+                        \`transaction\` t
+                    where
+                        t.status = 2
+                        and t.payment = 1
+                        and DATE_FORMAT(t.cr_time, '%Y') = \'${new Date().getFullYear()}\'
+                        ${req.query.b ? 'and t.branch=' + req.query.b : ''} ) as trx
+                group by
+                    trx.timed
+                order by bulan asc
             `)
             return ({ rc: "00", rm: "success", data: transaction })
         } catch (error) {

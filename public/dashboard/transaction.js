@@ -10,9 +10,41 @@ var branch = null;
 var branchdata = null;
 
 export async function transaction() {
+    branch = session.data.branch
+    if (branch === null) {
+        await new Promise(async function (resolve, reject) {
+            if (session.data.type !== 2) {
+                swal.showLoading()
+                var brachlist = await getBranchList();
+                swal.showModal('Pilih cabang', html`
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="input-branch">
+                            <option></option>
+                            <option value="all">Semua Cabang</option>
+                            ${brachlist.map(item => html`<option value="${item.id}">${item.name}</option>`)}
+                        </select>
+                        <label for="input-branch">Cabang</label>
+                    </div>
+                `)
+                $('#input-branch').on('change', function () {
+                    if ($('#input-branch').val() !== 'all') branch = $('#input-branch').val();
+                    else branch = null
+                    console.log('branch :' + branch);
+                    resolve(true)
+                })
+            } else {
+                branch = session.data.branch
+                resolve(true)
+            }
+        })
+    }
+
     render(html`
         <div class="container-fluid">
             <h1>DAFTAR TRANSAKSI</h1>
+            <small id="cabang-name"></small>
+            <button id="btn-refresh" type="button" class="btn btn-sm btn-outline-dark float-right ms-3 mt-3 mb-3"
+                style="width:50px">ganti</button>
             <hr>
             <p id="data-label" class="text-center bg-light shadow rounded py-3 px-3">Transaksi Hari Ini</p>
             <div class="container-fluid">
@@ -32,32 +64,19 @@ export async function transaction() {
         </div>
     `, $('#content-container')[0])
 
-    swal.showLoading()
-    // var dataset = await getTransactionData()
-    setTransactionData('/service/transaction/today', { "test": "1" })
-
-}
-
-async function getTransactionData() {
-    const options = {
-        method: 'POST',
-        url: '/service/transaction',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    };
-
-    var result = await new Promise(function (resolve, reject) {
-        axios.request(options).then(function (response) {
-            console.log(response.data);
-            resolve(response.data)
-        }).catch(function (error) {
-            reject(error)
-            console.error(error);
-        });
+    $('#btn-refresh').on('click', function () {
+        window.location.reload()
     })
 
-    return result.data
+    if (branch) {
+        branchdata = await getBranchData(branch)
+        $('#cabang-name').html(branchdata.name)
+    } else {
+        $('#cabang-name').html('Semua cabang')
+    }
+
+    swal.showLoading()
+    setTransactionData('/service/transaction/today', { "test": "1" })
 }
 
 async function setTransactionData(url, dataparam) {
@@ -118,7 +137,7 @@ async function setTransactionData(url, dataparam) {
         autoWidth: true,
         ajax: {
             type: "POST",
-            url: url,
+            url: url + (branch ? '?b=' + branch : ''),
             contentType: "application/json",
             data: function (d) {
                 return JSON.stringify(dataparam);
@@ -156,7 +175,7 @@ async function setTransactionData(url, dataparam) {
                         + 'Rp ' + element.amount + '<br>'
 
                     element.onecolumn = `
-                        <div class="row bg-secondary rounded text-light justify-content-center mx-2 my-1 py-2">${element.data.productname}</div>
+                        <div class="row bg-secondary rounded text-light justify-content-center mx-2 my-1 py-2">${element.data.productname}<br>${element.branch_name_view}</div>
                         <div class="row mx-2 text-start">
                             <div class="col-6">
                                 ${element.transaction_view}
@@ -510,7 +529,7 @@ async function inputTransaction(phone_number, isNewMember) {
     swal.showModal('Input Transaksi', html`
         <div class="form-floating mb-3">
             <input disabled type="text" class="form-control" value="${branchdata.name}(${branchdata.id})">
-            <label >Cabang</label>
+            <label>Cabang</label>
         </div>
         <div class="form-floating mb-3">
             <input type="text" class="form-control" id="input-customer-number" value="${result[0].phone_number}">

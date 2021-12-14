@@ -15,7 +15,8 @@ class mainRouter {
         logger.info("--> initials mainRouter")
         app.post('/service*', async function (req = express.request) {
             logger.info("request: " + req.path + " POST")
-            logger.info("body: " + JSON.stringify(req.body))
+            logger.info("query: " + JSON.stringify(req.query))
+            logger.info("body : " + JSON.stringify(req.body))
             var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
             var activity = await dbmodel.activity.create({
                 path: req.path,

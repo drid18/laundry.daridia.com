@@ -1,10 +1,50 @@
 import { render, html } from "../node_modules/lit-html/lit-html.js";
 import { swal } from "../utility/swal.js";
+import { session } from './index.js'
+
+
+var branch = null;
+var branchdata = null;
 
 export async function report() {
+
+    branch = session.data.branch
+    if (branch === null) {
+        await new Promise(async function (resolve, reject) {
+            if (session.data.type !== 2) {
+                swal.showLoading()
+                var brachlist = await getBranchList();
+                swal.showModal('Pilih cabang', html`
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="input-branch">
+                            <option></option>
+                            <option value="all">Semua Cabang</option>
+                            ${brachlist.map(item => html`<option value="${item.id}">${item.name}</option>`)}
+                        </select>
+                        <label for="input-branch">Cabang</label>
+                    </div>
+                `)
+                $('#input-branch').on('change', function () {
+                    if ($('#input-branch').val() !== 'all') branch = $('#input-branch').val();
+                    else branch = null
+                    console.log('branch :' + branch);
+                    swal.close()
+                    resolve(true)
+
+                })
+            } else {
+                branch = session.data.branch
+                resolve(true)
+            }
+        })
+    }
+
     render(html`
         <div class="container">
             <h1>LAPORAN</h1>
+            <small id="cabang-name"></small>
+            <button id="btn-refresh" type="button" class="btn btn-sm btn-outline-dark float-right ms-3 mt-3 mb-3"
+                style="width:50px">ganti</button>
             <hr>
             <div id="detail-container" class="container-fluid">
         
@@ -15,6 +55,17 @@ export async function report() {
             </div>
         </div>
     `, $('#content-container')[0])
+
+    $('#btn-refresh').on('click', function () {
+        window.location.reload()
+    })
+
+    if (branch) {
+        branchdata = await getBranchData(branch)
+        $('#cabang-name').html(branchdata.name)
+    } else {
+        $('#cabang-name').html('Semua cabang')
+    }
 
     createCard()
 }
@@ -33,7 +84,7 @@ async function createCard() {
     var result = await new Promise(function (resolve, reject) {
         const options = {
             method: 'POST',
-            url: '/service/transaction/report/data',
+            url: '/service/transaction/report/data' + (branch ? '?b=' + branch : ''),
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -55,8 +106,8 @@ async function createCard() {
             <a id="btn-detail-penjualan" href="#" class="btn btn-primary">Detail Penjualan <i class="fa fa-arrow-right"
                     aria-hidden="true"></i></a>
         </div>
-        ${generateCard('Pendapatan Bulan Ini', 'Rp ' + result.current_sum_trx)}
-        ${generateCard('Pendapatan Bulan Sebelumnya', 'Rp ' + result.previous_sum_trx)}
+        ${generateCard('Pendapatan Bulan Ini', 'Rp ' + (result.current_sum_trx ? result.current_sum_trx : 'tidak ada'))}
+        ${generateCard('Pendapatan Bulan Sebelumnya', 'Rp ' + (result.previous_sum_trx ? result.previous_sum_trx : 'tidak ada'))}
         <div class="d-flex justify-content-center mb-3">
             <a id="btn-detail-pendapatan" href="#" class="btn btn-primary">Detail Pendapatan <i class="fa fa-arrow-right"
                     aria-hidden="true"></i></a>
@@ -101,7 +152,7 @@ async function generateDetailContent() {
     var result = await new Promise(function (resolve, reject) {
         const options = {
             method: 'POST',
-            url: '/service/transaction/report/count/monthlyyear',
+            url: '/service/transaction/report/count/monthlyyear' + (branch ? '?b=' + branch : ''),
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -184,7 +235,7 @@ async function generateDetailContentSum() {
     var result = await new Promise(function (resolve, reject) {
         const options = {
             method: 'POST',
-            url: '/service/transaction/report/sum/monthlyyear',
+            url: '/service/transaction/report/sum/monthlyyear' + (branch ? '?b=' + branch : ''),
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -247,5 +298,40 @@ async function generateDetailContentSum() {
         $('#card-container').show('slow')
         $('#detail-container').hide('fast')
         chart.destroy()
+    })
+}
+
+
+async function getBranchList() {
+    return await new Promise(function (resolve, reject) {
+        var options = {
+            method: 'POST',
+            url: '/service/branch'
+        };
+
+        axios.request(options).then(function (response) {
+            console.log(response.data);
+            resolve(response.data.data)
+        }).catch(function (error) {
+            console.error(error);
+            reject(error)
+        });
+    })
+}
+async function getBranchData(id) {
+    return await new Promise(function (resolve, reject) {
+        var options = {
+            method: 'POST',
+            url: '/service/branch/id',
+            data: { id: id }
+        };
+
+        axios.request(options).then(function (response) {
+            console.log(response.data);
+            resolve(response.data.data)
+        }).catch(function (error) {
+            console.error(error);
+            reject(error)
+        });
     })
 }
