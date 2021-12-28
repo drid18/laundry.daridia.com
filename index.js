@@ -6,6 +6,11 @@ const app = express()
 const port = 3000
 const logger = log4js.getLogger(require('path').basename(__filename, '.js'))
 
+Date.prototype.addHours = function (h) {
+    this.setTime(this.getTime() + (h * 60 * 60 * 1000));
+    return this;
+}
+
 logger.info("--> Starting node")
 
 app.use(express.json())

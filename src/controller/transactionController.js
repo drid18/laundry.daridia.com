@@ -5,11 +5,16 @@ const logger = log4js.getLogger(require('path').basename(__filename, '.js'))
 const axios = require("axios").default;
 const { cs } = require('../utility/constants');
 
+Date.prototype.addHours = function (h) {
+    this.setTime(this.getTime() + (h * 60 * 60 * 1000));
+    return this;
+}
+
+
 class transactionController {
     static async addTransaction(req = express.request) {
         try {
-
-            logger.info('add new transaction')
+            logger.info('add new transaction ', new Date().addHours(8))
 
             var user = req.body.user
             var customer = req.body.customer
@@ -26,8 +31,8 @@ class transactionController {
             if (!checkcustomer) {
                 logger.info('new customer')
                 var newCustomer = await dbmodel.customer.create({
-                    cr_time: new Date(),
-                    mod_time: new Date(),
+                    cr_time: new Date().addHours(8),
+                    mod_time: new Date().addHours(8),
                     fullname: dataparse.customername,
                     phone_number: customer,
                     address: dataparse.customeraddress
@@ -36,8 +41,8 @@ class transactionController {
             }
 
             var newTransaction = await dbmodel.transaction.create({
-                cr_time: new Date(),
-                mod_time: new Date(),
+                cr_time: new Date().addHours(8),
+                mod_time: new Date().addHours(8),
                 user: user,
                 customer: customer,
                 product: product,
@@ -65,7 +70,7 @@ class transactionController {
             var status = req.body.status
 
             var updateTransaction = await dbmodel.transaction.update({
-                mod_time: new Date(),
+                mod_time: new Date().addHours(8),
                 user: user,
                 customer: customer,
                 product: product,
@@ -73,6 +78,16 @@ class transactionController {
                 amount: amount,
                 status: status
             }, { where: { id: id } })
+
+            if(payment === 1 || payment === '1'){
+                await dbmodel.transaction.update({
+                    paid_date: new Date().addHours(8)
+                }, { where: { id: id } })
+            } else {
+                await dbmodel.transaction.update({
+                    paid_date: null
+                }, { where: { id: id } })
+            }
             return ({ rc: "00", rm: "success" })
         } catch (error) {
             logger.error(error)
@@ -112,7 +127,7 @@ class transactionController {
 
     static async getToday(req = express.request) {
         try {
-
+            var currentdate = new Date().addHours(8).toISOString().substring(0,10);
             console.log(req.query);
             var [transaction, meta] = await _dbmodel.query(/*sql */`
                 select
@@ -122,7 +137,7 @@ class transactionController {
                 from \`transaction\` t 
                 left join branch b on
                     b.id = t.branch
-                where DATE(t.cr_time) = CURDATE()
+                where DATE(t.cr_time) = '${currentdate}'
                 ${req.query.b ? 'and t.branch=' + req.query.b : ''}
             `)
             return ({ rc: "00", rm: "success", data: transaction })

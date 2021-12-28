@@ -3,6 +3,7 @@ const { branchController } = require('../controller/branchController')
 const { customerController } = require('../controller/customerController')
 const { mainController } = require('../controller/mainController')
 const { productController } = require('../controller/productController')
+const { reportController } = require('../controller/reportController')
 const { sessionController } = require('../controller/sessionController')
 const { transactionController } = require('../controller/transactionController')
 const { userController } = require('../controller/userController')
@@ -68,6 +69,10 @@ class mainRouter {
                 case '/service/transaction/report/data': response = await transactionController.getReportData(req); break;
                 case '/service/transaction/report/sum/monthlyyear': response = await transactionController.getReportSumMonthlyYear(req); break;
                 case '/service/transaction/report/count/monthlyyear': response = await transactionController.getReportMonthlyYear(req); break; 
+                
+                case '/service/report/customer/transaction': response = await reportController.getCustomerTransactionPerMonth(req); break; 
+                case '/service/report/transaction/bytrx': response = await reportController.getTransactionByTrxDate(req); break; 
+                case '/service/report/transaction/bypaid': response = await reportController.getTransactionByPaidDate(req); break; 
                 
                 default: response = { rc: 99, rm: "path not found" }; break;
             }

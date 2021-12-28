@@ -95,8 +95,12 @@ thead {
   color: #000000;
 }
 #struct-print p {
-  font-size: smaller;
+  font-size: 5pt;
 }
 #struct-print div {
-  font-size: smaller;
+  font-size: 5pt;
+}
+
+.swal2-close:focus {
+  box-shadow: none !important;
 }

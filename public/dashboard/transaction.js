@@ -10,7 +10,11 @@ var branch = null;
 var branchdata = null;
 
 export async function transaction() {
-    branch = session.data.branch
+
+    var branch = sessionStorage.getItem("branch")
+    console.log(branch);
+    if (branch === 'null') branch = null
+    // branch = session.data.branch
     if (branch === null) {
         await new Promise(async function (resolve, reject) {
             if (session.data.type !== 2) {
@@ -30,6 +34,7 @@ export async function transaction() {
                     if ($('#input-branch').val() !== 'all') branch = $('#input-branch').val();
                     else branch = null
                     console.log('branch :' + branch);
+                    sessionStorage.setItem("branch", branch)
                     resolve(true)
                 })
             } else {
@@ -37,6 +42,10 @@ export async function transaction() {
                 resolve(true)
             }
         })
+    } else {
+        if (session.data.type === 2) {
+            branch = session.data.branch
+        }
     }
 
     render(html`
@@ -65,6 +74,7 @@ export async function transaction() {
     `, $('#content-container')[0])
 
     $('#btn-refresh').on('click', function () {
+        sessionStorage.setItem("branch", null)
         window.location.reload()
     })
 
@@ -102,7 +112,7 @@ async function setTransactionData(url, dataparam) {
         table = null;
     }
 
-    console.log('dataparam ' + JSON.stringify(dataparam));
+    // console.log('dataparam ' + JSON.stringify(dataparam));
 
     var columnlayout;
     if (w > h) {
@@ -110,14 +120,14 @@ async function setTransactionData(url, dataparam) {
             { title: "id", data: 'id' },
             { title: "Cabang", data: 'branch_name_view', width: '120px' },
             { title: "tanggal transaksi", data: 'cr_time_view', width: '120px' },
-            { title: "pembayaran", data: 'payment_view', width: '120px' },
             { title: "status", data: 'status_view', width: '120px' },
+            { title: "tanggal lunas", data: 'paid_date_view', width: '150px' },
+            { title: "pembayaran", data: 'payment_view', width: '120px' },
             { title: "pelanggan", data: 'data.customername', width: '150px' },
             { title: "no hp", data: 'customer', width: '150px' },
             { title: "produk", data: 'data.productname', width: '150px' },
             { title: "berat (Kg)", data: 'data.kg', width: '100px' },
             { title: "bayar (Rp)", data: 'amount', width: '100px' },
-            { title: "tanggal diubah", data: 'mod_time_view', width: '150px' },
         ]
     } else {
         columnlayout = [
@@ -128,6 +138,11 @@ async function setTransactionData(url, dataparam) {
         //     { title: "Pelanggan", data: 'customer_view', width: '50%' }
         // ]
     }
+
+    // console.log('branch:', branch);
+    // console.log('branch:', sessionStorage.getItem("branch"));
+    branch = sessionStorage.getItem("branch")
+    if (branch === 'null') branch = null
 
     table = $('#table-data').DataTable({
         responsive: true,
@@ -151,6 +166,7 @@ async function setTransactionData(url, dataparam) {
                     const element = dataset[index];
                     element.cr_time_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.cr_time.substring(0, 16).replace('T', ' <br> <i class="fa fa-clock-o" aria-hidden="true"></i> ')
                     element.mod_time_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.mod_time.substring(0, 16).replace('T', ' <br> <i class="fa fa-clock-o" aria-hidden="true"></i> ')
+                    element.paid_date_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.paid_date.substring(0, 16).replace('T', ' <br> <i class="fa fa-clock-o" aria-hidden="true"></i> ')
 
                     element.status_view = element.status === 0 ? '<p class="bg-danger rounded text-center text-white">Di Proses</p>'
                         : element.status === 1 ? '<p class="bg-warning rounded text-center text-white">Menungu Pengambilan</p>'
@@ -167,6 +183,7 @@ async function setTransactionData(url, dataparam) {
                         'ID: ' + element.id + '<br>'
                         + element.cr_time_view + '<br>'
                         + element.status_view
+                        + element.paid_date_view + '<br>'
                         + element.payment_view
                     element.customer_view =
                         element.data.customername + '<br>'
@@ -239,15 +256,15 @@ async function printStruct(data) {
     swal.showModal('Struk Transaksi', html`
         <div class="d-flex p-2 bd-highlight justify-content-center">
             <div id="struct-print" class="text-start border py-2 px-2" style="width: 300px;">
+                <hr>
                 <p class="text-center">Laundry Daridia.com</p>
                 <p class="text-center">
                     <small>ID Transaksi</small> <br>
                     <b>${data[0].id}</b> <br>
                     <small>${data[0].cr_time.substring(0, 16).replace('T', ' ').replace('Z', ' ')}</small>
                 </p>
-                <br>-------------------------<br>
                 <small>${data[0].data.productname}</small>
-                <br>-------------------------<br>
+                <hr>
                 <div class="row">
                     <div class="col-4">Nama</div>
                     <div class="col-8"><b>${data[0].data.customername}</b></div>
@@ -260,15 +277,14 @@ async function printStruct(data) {
                     <div class="col-4">Berat (Kg)</div>
                     <div class="col-8"><b>${data[0].data.kg}</b></div>
                 </div>
-                -------------------------<br>
                 <p class="text-center">
                     <small>Bayar (Rp)</small> <br>
                     <b>Rp ${data[0].data.price} x ${data[0].data.kg} Kg = Rp ${data[0].amount}</b> <br>
                 </p>
-                -------------------------<br>
                 <p class="text-center">
                     <small>Bawa kembali struk transaksi ini dan perlihatkan saat pengambilan laundry</small>
                 </p>
+                <hr>
             </div>
         </div>
         
@@ -286,14 +302,34 @@ async function printStruct(data) {
 
         document.body.innerHTML = printContents;
         document.body.style.fontFamily = 'Consolas, monaco, monospace'
-        document.body.style.fontSize = '12pt'
+        document.body.style.fontSize = '9pt'
         document.body.style.color = '#000000'
 
         window.print();
 
-        setTimeout(() => {
+        // setTimeout(() => {
+        //     window.location.reload()
+        // }, 5000);
+        // window.onafterprint = function () {
+        //     console.log("Printing completed...");
+        //     window.location.reload()
+        // }
+        window.onfocus = function () {
+            window.close();
             window.location.reload()
-        }, 5000);
+        }
+        const isMobile = navigator.userAgentData.mobile;
+        if (isMobile) {
+            alert('mobile')
+            window.onfocus = function () {
+                window.close();
+                window.location.reload()
+            }
+        } else {
+            alert('bukan mobile')
+            window.location.reload()
+        }
+
     })
 
     $('#download-data').on('click', function () {
@@ -602,7 +638,7 @@ async function inputTransaction(phone_number, isNewMember) {
 
     $('#input-data-weight').on('input', function () {
         var per = parseInt($('#input-data-amount-per').val())
-        var weight = parseInt($('#input-data-weight').val())
+        var weight = parseFloat($('#input-data-weight').val())
         var total = per * weight
         $('#input-data-amount').val(total)
     })

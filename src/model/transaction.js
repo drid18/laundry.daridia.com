@@ -51,6 +51,10 @@ class transaction extends Sequelize.Model {
     branch: {
       type: DataTypes.INTEGER,
       allowNull: true
+    },
+    paid_date: {
+      type: DataTypes.DATE,
+      allowNull: true
     }
   }, {
     sequelize,

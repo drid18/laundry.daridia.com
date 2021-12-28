@@ -1,14 +1,19 @@
 import { render, html } from "../node_modules/lit-html/lit-html.js";
 import { swal } from "../utility/swal.js";
 import { session } from './index.js'
+import { reportCustomer } from "./report_customer.js";
+import { reportTransactionDate } from "./report_transaction_date.js";
+import { reportTransactionPaid } from "./report_transaction_paid.js";
 
 
 var branch = null;
 var branchdata = null;
 
 export async function report() {
-
-    branch = session.data.branch
+    var branch = sessionStorage.getItem("branch")
+    console.log(branch);
+    if (branch === 'null') branch = null
+    // branch = session.data.branch
     if (branch === null) {
         await new Promise(async function (resolve, reject) {
             if (session.data.type !== 2) {
@@ -28,9 +33,9 @@ export async function report() {
                     if ($('#input-branch').val() !== 'all') branch = $('#input-branch').val();
                     else branch = null
                     console.log('branch :' + branch);
+                    sessionStorage.setItem("branch", branch)
                     swal.close()
                     resolve(true)
-
                 })
             } else {
                 branch = session.data.branch
@@ -46,17 +51,25 @@ export async function report() {
             <button id="btn-refresh" type="button" class="btn btn-sm btn-outline-dark float-right ms-3 mt-3 mb-3"
                 style="width:50px">ganti</button>
             <hr>
-            <div id="detail-container" class="container-fluid">
-        
-            </div>
+            <div id="detail-container" class="container-fluid"></div>
             <div class="container">
                 <div id='card-container' class="row">
                 </div>
             </div>
+            <div class="container-fluid bg-dark mt-4 mb-4 rounded" style="height: 5px" ></div>
+            <div id="customer-report" class="container p-3 shadow rounded"></div>
+            <div class="container-fluid bg-primary mt-4 mb-4 rounded" style="height: 5px" ></div>
+            <div id="transaction-paid-report" class="container p-3 shadow rounded"></div>
+            <div class="container-fluid bg-success mt-4 mb-4 rounded" style="height: 5px" ></div>
+            <div id="transaction-date-report" class="container p-3 shadow rounded"></div>
+            <br>
+            <br>
+            <br>
         </div>
     `, $('#content-container')[0])
 
     $('#btn-refresh').on('click', function () {
+        sessionStorage.setItem("branch", null)
         window.location.reload()
     })
 
@@ -68,6 +81,11 @@ export async function report() {
     }
 
     createCard()
+
+    /**another report menu */
+    reportCustomer('customer-report')
+    reportTransactionPaid('transaction-paid-report')
+    reportTransactionDate('transaction-date-report')
 }
 
 async function createCard() {
@@ -82,6 +100,8 @@ async function createCard() {
     `, $('#card-container')[0])
 
     var result = await new Promise(function (resolve, reject) {
+        branch = sessionStorage.getItem("branch")
+        if (branch === 'null') branch = null
         const options = {
             method: 'POST',
             url: '/service/transaction/report/data' + (branch ? '?b=' + branch : ''),
@@ -106,8 +126,10 @@ async function createCard() {
             <a id="btn-detail-penjualan" href="#" class="btn btn-primary">Detail Penjualan <i class="fa fa-arrow-right"
                     aria-hidden="true"></i></a>
         </div>
-        ${generateCard('Pendapatan Bulan Ini', 'Rp ' + (result.current_sum_trx ? result.current_sum_trx : 'tidak ada'))}
-        ${generateCard('Pendapatan Bulan Sebelumnya', 'Rp ' + (result.previous_sum_trx ? result.previous_sum_trx : 'tidak ada'))}
+        ${generateCard('Pendapatan Bulan Ini',
+            'Rp ' + (result.current_sum_trx ? result.current_sum_trx : 'tidak ada'))}
+        ${generateCard('Pendapatan Bulan Sebelumnya', 
+            'Rp ' + (result.previous_sum_trx ? result.previous_sum_trx : 'tidak ada'))}
         <div class="d-flex justify-content-center mb-3">
             <a id="btn-detail-pendapatan" href="#" class="btn btn-primary">Detail Pendapatan <i class="fa fa-arrow-right"
                     aria-hidden="true"></i></a>
@@ -150,6 +172,8 @@ async function generateDetailContent() {
     $('#detail-container').show('slow')
 
     var result = await new Promise(function (resolve, reject) {
+        branch = sessionStorage.getItem("branch")
+        if (branch === 'null') branch = null
         const options = {
             method: 'POST',
             url: '/service/transaction/report/count/monthlyyear' + (branch ? '?b=' + branch : ''),
@@ -233,6 +257,8 @@ async function generateDetailContentSum() {
     $('#detail-container').show('slow')
 
     var result = await new Promise(function (resolve, reject) {
+        branch = sessionStorage.getItem("branch")
+        if (branch === 'null') branch = null
         const options = {
             method: 'POST',
             url: '/service/transaction/report/sum/monthlyyear' + (branch ? '?b=' + branch : ''),
