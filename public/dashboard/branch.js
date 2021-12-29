@@ -173,3 +173,48 @@ async function editBranch(data) {
     })
 }
 
+async function deleteBranch(data) {
+    try {
+        data[0].id
+    } catch (error) {
+        swal.showInfo('Pilih cabang terlebih dulu')
+        return;
+    }
+
+    swal.showModal('Yakin ingin menghapus cabang ini?', html`
+        <div class="mb-3">
+            <hr>
+            <b><small>Nama</small></b>
+            <p>${data[0].name}</p>
+            <b><small>Alamat</small></b>
+            <p>${data[0].address}</p>
+            <hr>
+            <button id="confirm-delete" type="button" class="btn btn-outline-danger">Yakin</button>
+            <button id="cancel-delete" type="button" class="btn btn-outline-dark">Tidak</button>
+        </div>
+    `)
+
+    $('#cancel-delete').on('click', function () {
+        swal.close()
+    })
+    $('#confirm-delete').on('click', function () {
+        swal.showLoading()
+        const options = {
+            method: 'POST',
+            url: '/service/branch/delete',
+            headers: { 'Content-Type': 'application/json' },
+            data: { id: data[0].id }
+        };
+
+        axios.request(options).then(function (response) {
+            console.log(response.data);
+            swal.showSuccess("Data Berhasil di Hapus")
+            window.location.reload()
+        }).catch(function (error) {
+            swal.showFailed('Gagal')
+            console.error(error);
+        });
+    })
+}
+
+

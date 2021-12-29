@@ -13,6 +13,7 @@ class customerController {
             var address = req.body.address ? req.body.address : null;
 
             var newCustomer = await dbmodel.customer.create({
+                id: idgen,
                 cr_time: new Date(),
                 mod_time: new Date(),
                 fullname: fullname,
@@ -86,3 +87,7 @@ class customerController {
     }
 
 } exports.customerController = customerController
+
+function getRndInteger(min, max) {
+    return Math.floor(Math.random() * (max - min) ) + min;
+}

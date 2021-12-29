@@ -60,8 +60,8 @@ async function setUserdata() {
                         : element.type === 1 ? '<p class="bg-primary rounded text-center text-white">Admin</p>'
                             : '<p class="bg-secondary rounded text-center text-white">Operator</p>'
 
-                    if(element.type !== 2) element.cabang_view = 'Admin'
-                    if(element.type === 2) element.cabang_view = element.cabang_name ? element.cabang_name : '-'
+                    if (element.type !== 2) element.cabang_view = 'Admin'
+                    if (element.type === 2) element.cabang_view = element.cabang_name ? element.cabang_name : '-'
                 }
                 return dataset;
             },
@@ -306,7 +306,51 @@ async function editUser(data) {
 }
 
 async function deleteUser(data) {
+    try {
+        data[0].id
+    } catch (error) {
+        swal.showInfo('Pilih Karyawan terlebih dulu')
+        return;
+    }
 
+    swal.showModal('Yakin ingin menghapus Karyawan ini?', html`
+        <div class="mb-3">
+            <hr>
+            <b><small>Nama Pengguna</small></b>
+            <p>${data[0].username}</p>
+            <b><small>Nama Lengkap</small></b>
+            <p>${data[0].fullname}</p>
+            <b><small>No HP</small></b>
+            <p>${data[0].phone_number}</p>
+            <b><small>Email</small></b>
+            <p>${data[0].email}</p>
+            <hr>
+            <button id="confirm-delete" type="button" class="btn btn-outline-danger">Yakin</button>
+            <button id="cancel-delete" type="button" class="btn btn-outline-dark">Tidak</button>
+        </div>
+    `)
+
+    $('#cancel-delete').on('click', function () {
+        swal.close()
+    })
+    $('#confirm-delete').on('click', function () {
+        swal.showLoading()
+        const options = {
+            method: 'POST',
+            url: '/service/user/delete',
+            headers: { 'Content-Type': 'application/json' },
+            data: { userid: data[0].id }
+        };
+
+        axios.request(options).then(function (response) {
+            console.log(response.data);
+            swal.showSuccess("Data Berhasil di Hapus")
+            window.location.reload()
+        }).catch(function (error) {
+            swal.showFailed('Gagal')
+            console.error(error);
+        });
+    })
 }
 
 async function getBranchList() {

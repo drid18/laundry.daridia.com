@@ -81,7 +81,7 @@ async function setCustomerData() {
     })
     $('#delete-customer').on('click', function () {
         var data = table.rows({ selected: true }).data();
-        deleteCustomert(data)
+        deleteCustomer(data)
     })
 }
 
@@ -190,3 +190,49 @@ async function editCustomer(data) {
     })
 }
 
+async function deleteCustomer(data) {
+    try {
+        data[0].id
+    } catch (error) {
+        swal.showInfo('Pilih pelanggan terlebih dulu')
+        return;
+    }
+
+    swal.showModal('Yakin ingin menghapus pelanggan ini?', html`
+        <div class="mb-3">
+            <hr>
+            <b><small>Nama</small></b>
+            <p>${data[0].fullname}</p>
+            <b><small>No Telp</small></b>
+            <p>${data[0].phone_number}</p>
+            <b><small>Alamat</small></b>
+            <p>${data[0].address}</p>
+            <small>Menghapus data Pelanggan ini berarti menghapus semua data transaksi pelanggan bersangkutan</small>
+            <hr>
+            <button id="confirm-delete" type="button" class="btn btn-outline-danger">Yakin</button>
+            <button id="cancel-delete" type="button" class="btn btn-outline-dark">Tidak</button>
+        </div>
+    `)
+
+    $('#cancel-delete').on('click', function () {
+        swal.close()
+    })
+    $('#confirm-delete').on('click', function () {
+        swal.showLoading()
+        const options = {
+            method: 'POST',
+            url: '/service/customer/delete',
+            headers: { 'Content-Type': 'application/json' },
+            data: { id: data[0].id }
+        };
+
+        axios.request(options).then(function (response) {
+            console.log(response.data);
+            swal.showSuccess("Data Berhasil di Hapus")
+            window.location.reload()
+        }).catch(function (error) {
+            swal.showFailed('Gagal')
+            console.error(error);
+        });
+    })
+}

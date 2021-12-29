@@ -4,7 +4,6 @@ import { swal } from "../utility/swal.js";
 import { session } from './index.js'
 import '../utility/html2canvas.js'
 
-
 var table = null;
 var branch = null;
 var branchdata = null;
@@ -166,8 +165,8 @@ async function setTransactionData(url, dataparam) {
                     const element = dataset[index];
                     element.cr_time_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.cr_time.substring(0, 16).replace('T', ' <br> <i class="fa fa-clock-o" aria-hidden="true"></i> ')
                     element.mod_time_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.mod_time.substring(0, 16).replace('T', ' <br> <i class="fa fa-clock-o" aria-hidden="true"></i> ')
-                    element.paid_date_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.paid_date.substring(0, 16).replace('T', ' <br> <i class="fa fa-clock-o" aria-hidden="true"></i> ')
-
+                    if(element.paid_date) element.paid_date_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.paid_date.substring(0, 16).replace('T', ' <br> <i class="fa fa-clock-o" aria-hidden="true"></i> ')
+                    else element.paid_date_view = `<i class="fa fa-times" aria-hidden="true"></i>`
                     element.status_view = element.status === 0 ? '<p class="bg-danger rounded text-center text-white">Di Proses</p>'
                         : element.status === 1 ? '<p class="bg-warning rounded text-center text-white">Menungu Pengambilan</p>'
                             : '<p class="bg-success rounded text-center text-white">Selesai</p>'
@@ -639,7 +638,7 @@ async function inputTransaction(phone_number, isNewMember) {
     $('#input-data-weight').on('input', function () {
         var per = parseInt($('#input-data-amount-per').val())
         var weight = parseFloat($('#input-data-weight').val())
-        var total = per * weight
+        var total = Math.round(per * weight) 
         $('#input-data-amount').val(total)
     })
 
