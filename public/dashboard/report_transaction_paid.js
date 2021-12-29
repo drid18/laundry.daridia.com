@@ -13,19 +13,25 @@ export async function reportTransactionPaid(container) {
         <p class="text-center">Transaksi Per Tanggal Order Lunas</p>
         <div>
             <div class="row">
-                <div class="col-md-5">
+                <div class="col-md-3">
                     <div class="form-floating mb-3">
-                        <input id="paid-update-year" type="number" class="form-control" id="floatingInput">
+                        <input id="paid-update-year" type="number" class="form-control">
                         <label>Tahun</label>
                     </div>
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-3">
                     <div class="form-floating mb-3">
-                        <input id="paid-update-month" type="number" class="form-control" id="floatingInput">
+                        <input id="paid-update-month" type="number" class="form-control">
                         <label>Bulan</label>
                     </div>
                 </div>
-                <div class="col-md-2 align-items-center">
+                <div class="col-md-3">
+                    <div class="form-floating mb-3">
+                        <input id="paid-update-date" type="number" class="form-control">
+                        <label>Tanggal</label>
+                    </div>
+                </div>
+                <div class="col-md-3 align-items-center">
                     <button id="transaction-paid-update" type="button" class="btn btn-primary" style="height:58px; width:100%">
                         <i class="fa fa-arrow-right" aria-hidden="true"></i>
                     </button>
@@ -46,6 +52,12 @@ export async function reportTransactionPaid(container) {
 }
 
 async function rendertable() {
+
+    var branch = sessionStorage.getItem("branch")
+    console.log(branch);
+    if (branch === 'null') branch = null
+    var branchurl = branch ? '?b=' + branch : ''
+
     tableTransactionPaid = $('#table-data-transaction-paid').DataTable({
         responsive: true,
         scrollX: true,
@@ -53,7 +65,7 @@ async function rendertable() {
         select: true,
         ajax: {
             type: "POST",
-            url: '/service/report/transaction/bypaid',
+            url: '/service/report/transaction/bypaid' + branchurl,
             // timeout: 10000,
             dataType: 'JSON',
             contentType: "application/json; charset=utf-8",
@@ -63,32 +75,43 @@ async function rendertable() {
                 var dataset = result.data
                 totalamountpaid = result.total;
 
-                render(html`
-                <div class="text-center">
-                    <p>Jumlah Transaksi <br> <b>${dataset.length ? dataset.length : 0}</b></p>
-                    <p>Total Pendapatan <br> <b>Rp ${totalamountpaid}</b> </p>
-                </div>
-                `, $('#report-transaction-paid-detail')[0])
+                try {
+                    render(html`
+                    <div class="text-center">
+                        <p id="detail-trx-paid"></p>
+                        <p>Jumlah Transaksi <br> <b>${dataset.length ? dataset.length : 0}</b></p>
+                        <p>Total Pendapatan <br> <b>Rp ${totalamountpaid}</b> </p>
+                    </div>
+                    `, $('#report-transaction-paid-detail')[0])
 
-                for (let index = 0; index < dataset.length; index++) {
-                    const element = dataset[index];
-                    element.cr_time_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.cr_time.substring(0, 16).replace('T', ' <i class="fa fa-clock-o" aria-hidden="true"></i> ')
-                    element.mod_time_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.mod_time.substring(0, 16).replace('T', ' <i class="fa fa-clock-o" aria-hidden="true"></i> ')
-                    element.paid_date_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.paid_date.substring(0, 16).replace('T', ' <i class="fa fa-clock-o" aria-hidden="true"></i> ')
+                    for (let index = 0; index < dataset.length; index++) {
+                        const element = dataset[index];
+                        element.cr_time_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.cr_time.substring(0, 16).replace('T', ' <i class="fa fa-clock-o" aria-hidden="true"></i> ')
+                        element.mod_time_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.mod_time.substring(0, 16).replace('T', ' <i class="fa fa-clock-o" aria-hidden="true"></i> ')
+                        element.paid_date_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.paid_date.substring(0, 16).replace('T', ' <i class="fa fa-clock-o" aria-hidden="true"></i> ')
 
-                    var dataJson = JSON.parse(element.data)
-                    element.productname = dataJson.productname
-                    element.kg = dataJson.kg
-                    element.price = dataJson.price
+                        element.status_view = element.status === 0 ? '<p class="bg-danger rounded text-center text-white">Di Proses</p>'
+                            : element.status === 1 ? '<p class="bg-warning rounded text-center text-white">Menungu Pengambilan</p>'
+                                : '<p class="bg-success rounded text-center text-white">Selesai</p>'
+
+                        var dataJson = JSON.parse(element.data)
+                        element.productname = dataJson.productname
+                        element.kg = dataJson.kg
+                        element.price = dataJson.price
+                    }
+                    return dataset;
+                } catch (error) {
+                    return []
                 }
-                return dataset;
             },
         },
         columns: [
             // { title: "id", data: 'id' },
             { title: "No", data: null, width: '50px' },
+            { title: "Cabang", data: 'name', width: '200px' },
             { title: "Tanggal Transaksi", data: 'cr_time_view', width: '150px' },
             { title: "Tanggal Lunas", data: 'paid_date_view', width: '150px' },
+            { title: "Status", data: 'status_view', width: '100px' },
             { title: "Pelanggan", data: 'customer', width: '100px' },
             { title: "Produk", data: 'productname', width: '150px' },
             { title: "Berat", data: 'kg', width: '50px' },
@@ -116,9 +139,23 @@ async function rendertable() {
     }).draw();
 
     $('#transaction-paid-update').on('click', function () {
+
+        var branch = sessionStorage.getItem("branch")
+        console.log(branch);
+        if (branch === 'null') branch = null
+        var branchurl = branch ? '&b=' + branch : ''
+
         var m = $('#paid-update-month').val()
         var y = $('#paid-update-year').val()
-        tableTransactionPaid.ajax.url(`/service/report/transaction/bypaid?m=${m}&y=${y}`).load();
+        var d = $('#paid-update-date').val()
+        tableTransactionPaid.ajax.url(`/service/report/transaction/bypaid?m=${m}&y=${y}&d=${d}` + branchurl).load();
+
+        var detail_trx = ''
+        if (y) detail_trx += `  Tahun <b>${y}</b>  `
+        if (m) detail_trx += `  Bulan <b>${m}</b>  `
+        if (d) detail_trx += `  Tanggal <b>${d}</b>  `
+
+        $('#detail-trx-paid').html(detail_trx)
     })
 
 
