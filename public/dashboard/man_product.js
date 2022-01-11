@@ -197,7 +197,7 @@ async function editProduct(data) {
         console.log(edit_name);
         console.log(edit_description);
         console.log(edit_price);
-        console.log(edit_status);
+        // console.log(edit_status);
 
         const options = {
             method: 'POST',
@@ -210,7 +210,7 @@ async function editProduct(data) {
                 name: edit_name,
                 description: edit_description,
                 price: edit_price,
-                status: data[0].status
+                // status: data[0].status
             }
         };
         console.log(options);
@@ -218,7 +218,8 @@ async function editProduct(data) {
         axios.request(options).then(function (response) {
             console.log(response.data);
             swal.showSuccess('Berhasil mengubah data')
-            window.location.reload()
+            // window.location.reload()
+            table.ajax.reload()
         }).catch(function (error) {
             swal.showFailed('Gagal')
             console.error(error);
@@ -256,7 +257,8 @@ async function deleteProduct(data) {
         axios.request(options).then(function (response) {
             console.log(response.data);
             swal.showSuccess("Data Berhasil di Hapus")
-            window.location.reload()
+            // window.location.reload()
+            table.ajax.reload()
         }).catch(function (error) {
             swal.showFailed('Gagal')
             console.error(error);

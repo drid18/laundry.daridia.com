@@ -104,3 +104,7 @@ thead {
 .swal2-close:focus {
   box-shadow: none !important;
 }
+
+#img-print-logo{
+  -webkit-print-color-adjust: exact !important;
+}

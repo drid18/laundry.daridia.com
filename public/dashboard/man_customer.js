@@ -182,7 +182,8 @@ async function editCustomer(data) {
         axios.request(options).then(function (response) {
             console.log(response.data);
             swal.showSuccess('Berhasil mengubah data')
-            window.location.reload()
+            // window.location.reload()
+            table.ajax.reload()
         }).catch(function (error) {
             swal.showFailed('Gagal')
             console.error(error);
@@ -229,7 +230,8 @@ async function deleteCustomer(data) {
         axios.request(options).then(function (response) {
             console.log(response.data);
             swal.showSuccess("Data Berhasil di Hapus")
-            window.location.reload()
+            // window.location.reload()
+            table.ajax.reload()
         }).catch(function (error) {
             swal.showFailed('Gagal')
             console.error(error);

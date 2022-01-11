@@ -165,7 +165,7 @@ async function setTransactionData(url, dataparam) {
                     const element = dataset[index];
                     element.cr_time_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.cr_time.substring(0, 16).replace('T', ' <br> <i class="fa fa-clock-o" aria-hidden="true"></i> ')
                     element.mod_time_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.mod_time.substring(0, 16).replace('T', ' <br> <i class="fa fa-clock-o" aria-hidden="true"></i> ')
-                    if(element.paid_date) element.paid_date_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.paid_date.substring(0, 16).replace('T', ' <br> <i class="fa fa-clock-o" aria-hidden="true"></i> ')
+                    if (element.paid_date) element.paid_date_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.paid_date.substring(0, 16).replace('T', ' <br> <i class="fa fa-clock-o" aria-hidden="true"></i> ')
                     else element.paid_date_view = `<i class="fa fa-times" aria-hidden="true"></i>`
                     element.status_view = element.status === 0 ? '<p class="bg-danger rounded text-center text-white">Di Proses</p>'
                         : element.status === 1 ? '<p class="bg-warning rounded text-center text-white">Menungu Pengambilan</p>'
@@ -255,15 +255,17 @@ async function printStruct(data) {
     swal.showModal('Struk Transaksi', html`
         <div class="d-flex p-2 bd-highlight justify-content-center">
             <div id="struct-print" class="text-start border py-2 px-2" style="width: 300px;">
-                <hr>
-                <p class="text-center">Laundry Daridia.com</p>
+                <p class="text-center">Laundry Express Pratama</p>
                 <p class="text-center">
-                    <small>ID Transaksi</small> <br>
-                    <b>${data[0].id}</b> <br>
+                    <!-- <img id="img-print-logo" src="/assets/logo.jpeg"
+                        style="width: 100px; -webkit-print-color-adjust: exact !important;">
+                    <br> -->
+                    Jl DI panjaitan, Lepo-Lepo, Poros bandara, Baruga, Kota Kendari, Sulawesi Tenggara</p>
+                <p class="text-center">
+                    <small>ID: </small><b>${data[0].id}</b> <br>
                     <small>${data[0].cr_time.substring(0, 16).replace('T', ' ').replace('Z', ' ')}</small>
                 </p>
                 <small>${data[0].data.productname}</small>
-                <hr>
                 <div class="row">
                     <div class="col-4">Nama</div>
                     <div class="col-8"><b>${data[0].data.customername}</b></div>
@@ -283,7 +285,6 @@ async function printStruct(data) {
                 <p class="text-center">
                     <small>Bawa kembali struk transaksi ini dan perlihatkan saat pengambilan laundry</small>
                 </p>
-                <hr>
             </div>
         </div>
         
@@ -304,30 +305,25 @@ async function printStruct(data) {
         document.body.style.fontSize = '9pt'
         document.body.style.color = '#000000'
 
-        window.print();
+        setTimeout(() => {
+            window.print();
 
-        // setTimeout(() => {
-        //     window.location.reload()
-        // }, 5000);
-        // window.onafterprint = function () {
-        //     console.log("Printing completed...");
-        //     window.location.reload()
-        // }
-        window.onfocus = function () {
-            window.close();
-            window.location.reload()
-        }
-        const isMobile = navigator.userAgentData.mobile;
-        if (isMobile) {
-            alert('mobile')
             window.onfocus = function () {
                 window.close();
                 window.location.reload()
             }
-        } else {
-            alert('bukan mobile')
-            window.location.reload()
-        }
+            const isMobile = navigator.userAgentData.mobile;
+            if (isMobile) {
+                window.onfocus = function () {
+                    window.close();
+                    window.location.reload()
+                }
+            } else {
+                window.location.reload()
+            }
+        }, 1000);
+
+
 
     })
 
@@ -638,7 +634,7 @@ async function inputTransaction(phone_number, isNewMember) {
     $('#input-data-weight').on('input', function () {
         var per = parseInt($('#input-data-amount-per').val())
         var weight = parseFloat($('#input-data-weight').val())
-        var total = Math.round(per * weight) 
+        var total = Math.round(per * weight)
         $('#input-data-amount').val(total)
     })
 
@@ -687,7 +683,6 @@ async function editTransaction(data) {
         swal.showInfo('Pilih transaksi terlebih dulu')
         return;
     }
-
     swal.showLoading()
     var productList = await new Promise(function (resolve, reject) {
         const options = {
@@ -708,41 +703,41 @@ async function editTransaction(data) {
     })
 
     swal.showModal('Ubah Data Transaksi', html`
-            <div class="form-floating mb-3">
-                <input disabled type="text" class="form-control" id="input-customer-number" value="${data[0].customer}">
-                <label for="input-customer-number">Nomor Pelanggan</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input disabled type="text" class="form-control" id="input-customer-name" value="${data[0].data.customername}">
-                <label for="input-customer-name">Nama Pelanggan</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input disabled type="text" class="form-control" id="input-product-name" value="${data[0].data.productname}">
-                <label for="input-product-name">Produk</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input disabled type="text" class="form-control" id="input-product-amount" value="Rp ${data[0].amount}">
-                <label for="input-product-amount">Jumlah Bayar</label>
-            </div>
-            <div class="form-floating mb-3">
-                <select class="form-select" id="edit-input-status" value="${data[0].status}">
-                    <option value="0">Di Proses</option>
-                    <option value="1">Menunggu Pengambilan</option>
-                    <option value="2">Selesai</option>
-                </select>
-                <label for="edit-input-status">Status</label>
-            </div>
-            <div class="form-floating mb-3">
-                <select class="form-select" id="edit-input-payment" value="${data[0].payment}">
-                    <option value="0">Belum Lunas</option>
-                    <option value="1">Lunas</option>
-                </select>
-                <label for="edit-input-payment">Pembayaran</label>
-            </div>
-            <div class="mb-3">
-                <button id="input-edit-transaction" type="button" class="btn btn-outline-dark">Ubah Produk</button>
-            </div>
-        `)
+                <div class="form-floating mb-3">
+                    <input disabled type="text" class="form-control" id="input-customer-number" value="${data[0].customer}">
+                    <label for="input-customer-number">Nomor Pelanggan</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input disabled type="text" class="form-control" id="input-customer-name" value="${data[0].data.customername}">
+                    <label for="input-customer-name">Nama Pelanggan</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input disabled type="text" class="form-control" id="input-product-name" value="${data[0].data.productname}">
+                    <label for="input-product-name">Produk</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input disabled type="text" class="form-control" id="input-product-amount" value="Rp ${data[0].amount}">
+                    <label for="input-product-amount">Jumlah Bayar</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <select class="form-select" id="edit-input-status" value="${data[0].status}">
+                        <option value="0">Di Proses</option>
+                        <option value="1">Menunggu Pengambilan</option>
+                        <option value="2">Selesai</option>
+                    </select>
+                    <label for="edit-input-status">Status</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <select class="form-select" id="edit-input-payment" value="${data[0].payment}">
+                        <option value="0">Belum Lunas</option>
+                        <option value="1">Lunas</option>
+                    </select>
+                    <label for="edit-input-payment">Pembayaran</label>
+                </div>
+                <div class="mb-3">
+                    <button id="input-edit-transaction" type="button" class="btn btn-outline-dark">Ubah Produk</button>
+                </div>
+            `)
 
     $("#edit-input-status").val(data[0].status).change();
     $("#edit-input-payment").val(data[0].payment).change();
@@ -770,16 +765,17 @@ async function editTransaction(data) {
         axios.request(options).then(function (response) {
             console.log(response.data);
             swal.showSuccess('Berhasil mengubah data')
-            window.location.reload()
+            // window.location.reload()
+            table.ajax.reload()
         }).catch(function (error) {
             swal.showFailed('Gagal')
             console.error(error);
         });
     })
+
 }
 
 async function deleteTransaction(data) {
-
     try {
         data[0].id
     } catch (error) {
@@ -787,7 +783,8 @@ async function deleteTransaction(data) {
         return;
     }
 
-    swal.showModal('Yakin ingin menghapus data ini?', html`
+    if (session.data.type !== 2) {
+        swal.showModal('Yakin ingin menghapus data ini?', html`
         <div class="mb-3">
             <hr>
             <b><small>Pelanggan</small></b>
@@ -804,27 +801,32 @@ async function deleteTransaction(data) {
         </div>
     `)
 
-    $('#cancel-delete').on('click', function () {
-        swal.close()
-    })
-    $('#confirm-delete').on('click', function () {
-        swal.showLoading()
-        const options = {
-            method: 'POST',
-            url: '/service/transaction/delete',
-            headers: { 'Content-Type': 'application/json' },
-            data: { id: data[0].id }
-        };
+        $('#cancel-delete').on('click', function () {
+            swal.close()
+        })
+        $('#confirm-delete').on('click', function () {
+            swal.showLoading()
+            const options = {
+                method: 'POST',
+                url: '/service/transaction/delete',
+                headers: { 'Content-Type': 'application/json' },
+                data: { id: data[0].id }
+            };
 
-        axios.request(options).then(function (response) {
-            console.log(response.data);
-            swal.showSuccess("Data Berhasil di Hapus")
-            window.location.reload()
-        }).catch(function (error) {
-            swal.showFailed('Gagal')
-            console.error(error);
-        });
-    })
+            axios.request(options).then(function (response) {
+                console.log(response.data);
+                swal.showSuccess("Data Berhasil di Hapus")
+                // window.location.reload()
+                table.ajax.reload()
+            }).catch(function (error) {
+                swal.showFailed('Gagal')
+                console.error(error);
+            });
+        })
+    }
+    else {
+        swal.showInfo('Konfirmasikan ke admin untuk melakukan penghapusan transaksi')
+    }
 }
 
 async function getBranchList() {
