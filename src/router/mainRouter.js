@@ -57,6 +57,7 @@ class mainRouter {
                 case '/service/customer/delete': response = await customerController.deleteCustomer(req); break; 
                 case '/service/customer/find/phone': response = await customerController.findbyphone(req); break; 
                 case '/service/customer/find/name': response = await customerController.findbyname(req); break;
+                case '/service/customer/find/input': response = await customerController.findbynumberorname(req); break;
 
                 case '/service/transaction': response = await transactionController.getAll(req); break; 
                 case '/service/transaction/today': response = await transactionController.getToday(req); break; 

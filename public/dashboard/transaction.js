@@ -119,6 +119,7 @@ async function setTransactionData(url, dataparam) {
             { title: "id", data: 'id' },
             { title: "Cabang", data: 'branch_name_view', width: '120px' },
             { title: "tanggal transaksi", data: 'cr_time_view', width: '120px' },
+            { title: "tanggal selesai", data: 'finish_date_view', width: '120px' },
             { title: "status", data: 'status_view', width: '120px' },
             { title: "tanggal lunas", data: 'paid_date_view', width: '150px' },
             { title: "pembayaran", data: 'payment_view', width: '120px' },
@@ -167,6 +168,8 @@ async function setTransactionData(url, dataparam) {
                     element.mod_time_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.mod_time.substring(0, 16).replace('T', ' <br> <i class="fa fa-clock-o" aria-hidden="true"></i> ')
                     if (element.paid_date) element.paid_date_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.paid_date.substring(0, 16).replace('T', ' <br> <i class="fa fa-clock-o" aria-hidden="true"></i> ')
                     else element.paid_date_view = `<i class="fa fa-times" aria-hidden="true"></i>`
+                    if (element.finish_date) element.finish_date_view = '<i class="fa fa-calendar" aria-hidden="true"></i> ' + element.finish_date.substring(0, 16).replace('T', ' <br> <i class="fa fa-clock-o" aria-hidden="true"></i> ')
+                    else element.finish_date_view = `<i class="fa fa-times" aria-hidden="true"></i>`
                     element.status_view = element.status === 0 ? '<p class="bg-danger rounded text-center text-white">Di Proses</p>'
                         : element.status === 1 ? '<p class="bg-warning rounded text-center text-white">Menungu Pengambilan</p>'
                             : '<p class="bg-success rounded text-center text-white">Selesai</p>'
@@ -258,8 +261,8 @@ async function printStruct(data) {
                 <p class="text-center">Laundry Express Pratama</p>
                 <p class="text-center">
                     <!-- <img id="img-print-logo" src="/assets/logo.jpeg"
-                        style="width: 100px; -webkit-print-color-adjust: exact !important;">
-                    <br> -->
+                                                style="width: 100px; -webkit-print-color-adjust: exact !important;">
+                                            <br> -->
                     Jl DI panjaitan, Lepo-Lepo, Poros bandara, Baruga, Kota Kendari, Sulawesi Tenggara</p>
                 <p class="text-center">
                     <small>ID: </small><b>${data[0].id}</b> <br>
@@ -451,11 +454,11 @@ async function addtransaction() {
 
     branchdata = await getBranchData(branch)
 
-    swal.showModal('Input Nomor Pelanggan', html`
+    swal.showModal('Input Nomor/Nama Pelanggan', html`
         <p>${branchdata.name}(${branchdata.id})</p>
         <div autocomplete="off" class="form-floating mb-3">
             <input autocomplete="off" type="text" class="form-control" id="input-phone">
-            <label for="floatingInput">Nomor Pelanggan</label>
+            <label for="floatingInput">Nomor/Nama Pelanggan</label>
         </div>
         <small><i id="type-status"></i></small>
         <div id="numberlist" class="list-group mb-3"></div>
@@ -475,11 +478,11 @@ async function addtransaction() {
             console.log('kita search');
             const options = {
                 method: 'POST',
-                url: '/service/customer/find/phone',
+                url: '/service/customer/find/input',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                data: { number: $('#input-phone').val() }
+                data: { input: $('#input-phone').val() }
             };
 
             axios.request(options).then(function (response) {
@@ -515,17 +518,19 @@ async function addtransaction() {
 
 async function inputTransaction(phone_number, isNewMember) {
 
+    if (isNaN(phone_number)) phone_number = ''
+
     var result = [{ phone_number: phone_number, fullname: '', address: '' }]
 
     if (!isNewMember) {
         result = await new Promise(function (resolve, reject) {
             const options = {
                 method: 'POST',
-                url: '/service/customer/find/phone',
+                url: '/service/customer/find/input',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                data: { number: phone_number }
+                data: { input: phone_number }
             };
 
             axios.request(options).then(function (response) {
@@ -574,21 +579,32 @@ async function inputTransaction(phone_number, isNewMember) {
             <input type="text" class="form-control" id="input-customer-address" value="${result[0].address}">
             <label for="input-customer-address">Alamat Pelanggan</label>
         </div>
-        <div class="form-floating  mb-3">
-            <select class="form-select" id="input-data-product" aria-label="Floating label select example">
-                <option value="-">Pilih Produk...</option>
-                ${productList.map((item) => html`<option value="${item.id}">${item.name}</option>`)}
-            </select>
-            <label for="floatingSelect">Produk</label>
+        <hr>
+        <div>
+            <div class="form-floating  mb-3">
+                <select class="form-select" id="input-data-product" aria-label="Floating label select example">
+                    <option value="-">Pilih Produk...</option>
+                    ${productList.map((item) => html`<option value="${item.id}">${item.name}</option>`)}
+                </select>
+                <label for="floatingSelect">Produk</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="number" class="form-control" id="input-data-weight">
+                <label for="floatingInput">Berat (KG)</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input disabled type="number" class="form-control" id="input-data-amount-per">
+                <label for="floatingInput">Harge Per (KG)</label>
+            </div>
+            <!-- <p class="text-center" >Tambahan</p>
+            <hr>
+            <div id="additional-product"></div>
+            <hr>
+            <div class="d-grid gap-2">
+                <button id="add-extra-product" class="btn btn-primary" type="button">Tambah</button>
+            </div> -->
         </div>
-        <div class="form-floating mb-3">
-            <input type="number" class="form-control" id="input-data-weight">
-            <label for="floatingInput">Berat (KG)</label>
-        </div>
-        <div class="form-floating mb-3">
-            <input disabled type="number" class="form-control" id="input-data-amount-per">
-            <label for="floatingInput">Harge Per (KG)</label>
-        </div>
+        <hr>
         <div class="form-floating mb-3">
             <input disabled type="number" class="form-control" id="input-data-amount">
             <label for="floatingInput">Total Bayar (RP)</label>
@@ -597,7 +613,35 @@ async function inputTransaction(phone_number, isNewMember) {
             <button id="confirmButton" type="button" class="btn btn-outline-dark">Input</button>
             <button id="cancelButton" type="button" class="btn btn-outline-dark">Batalkan</button>
         </div>
-        `)
+    `)
+
+    var additional_product = []
+    var additional_product_view;
+    var extraCount = 0;
+
+    $('#add-extra-product').on('click', function () {
+        additional_product_view = $('#additional-product').html();
+        extraCount++;
+        render(html`
+            ${unsafeHTML(additional_product_view)}
+            <p><small>Tambahan - ${extraCount}</small></p>
+            <div class="form-floating  mb-3">
+                <select class="form-select" id="input-data-product" aria-label="Floating label select example">
+                    <option value="-">Pilih Produk...</option>
+                    ${productList.map((item) => html`<option value="${item.id}">${item.name}</option>`)}
+                </select>
+                <label for="floatingSelect">Produk</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="number" class="form-control" id="input-data-weight">
+                <label for="floatingInput">Berat (KG)</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input disabled type="number" class="form-control" id="input-data-amount-per">
+                <label for="floatingInput">Harge Per (KG)</label>
+            </div>
+        `, $('#additional-product')[0])
+    })
 
 
 

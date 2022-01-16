@@ -101,6 +101,7 @@ async function rendertable() {
                         element.productname = dataJson.productname
                         element.kg = dataJson.kg
                         element.price = dataJson.price
+                        element.costumername = dataJson.customername
                     }
                     return dataset;
                 } catch (error) {
@@ -115,7 +116,8 @@ async function rendertable() {
             { title: "Tanggal Transaksi", data: 'cr_time_view', width: '150px' },
             { title: "Status", data: 'status_view', width: '100px' },
             { title: "Pembayaran", data: 'payment_view', width: '100px' },
-            { title: "Pelanggan", data: 'customer', width: '100px' },
+            { title: "No Pelanggan", data: 'customer', width: '100px' },
+            { title: "Nama Pelanggan", data: 'costumername', width: '100px' },
             { title: "Produk", data: 'productname', width: '150px' },
             { title: "Berat", data: 'kg', width: '50px' },
             { title: "Satuan", data: 'price', width: '100px' },

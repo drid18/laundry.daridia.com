@@ -76,10 +76,19 @@ class customerController {
         }
     }
 
-    static async findbyname(req = express.request) {
+    static async findbynumberorname(req = express.request) {
         try {
-            var name = req.body.name
-            var [customer, meta] = await _dbmodel.query(`select * from customer c where lower(c.fullname)  like '%${name}%'`)
+            console.log('findbynumberorname');
+            var input = req.body.input
+            var [customer, meta] = await _dbmodel.query(`
+                select
+                    *
+                from
+                    customer c
+                where
+                    lower(c.fullname) like '%${input}%'
+                    or lower(c.phone_number) like '%${input}%'
+            `)
             return ({ rc: "00", rm: "success", data: customer })
         } catch (error) {
             return (error)

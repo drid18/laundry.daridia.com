@@ -69,6 +69,8 @@ class transactionController {
             var amount = req.body.amount
             var status = req.body.status
 
+            logger.info("type:", req.session.data.type);
+
             var updateTransaction = await dbmodel.transaction.update({
                 mod_time: new Date().addHours(8),
                 user: user,
@@ -88,6 +90,17 @@ class transactionController {
                     paid_date: null
                 }, { where: { id: id } })
             }
+            
+            if(status === 2 || status === '2'){
+                await dbmodel.transaction.update({
+                    finish_date: new Date().addHours(8)
+                }, { where: { id: id } })
+            } else {
+                await dbmodel.transaction.update({
+                    finish_date: null
+                }, { where: { id: id } })
+            }
+
             return ({ rc: "00", rm: "success" })
         } catch (error) {
             logger.error(error)
