@@ -1,10 +1,10 @@
-import { branch } from "./branch.js?v=1.3";
-import { customer } from "./man_customer.js?v=1.3";
-import { product } from "./man_product.js?v=1.3";
-import { user } from "./man_user.js?v=1.3";
-import { report } from "./report.js?v=1.3";
-import { sidebar } from "./sidebar.js?v=1.3";
-import { transaction } from "./transaction.js?v=1.3";
+import { branch } from "./branch.js?v=1.5";
+import { customer } from "./man_customer.js?v=1.5";
+import { product } from "./man_product.js?v=1.5";
+import { user } from "./man_user.js?v=1.5";
+import { report } from "./report.js?v=1.5";
+import { sidebar } from "./sidebar.js?v=1.5";
+import { transaction } from "./transaction.js?v=1.5";
 
 export var session = null;
 

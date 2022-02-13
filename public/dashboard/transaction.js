@@ -243,6 +243,8 @@ async function setTransactionData(url, dataparam) {
 
 }
 
+
+
 async function printStruct(data) {
     try {
         data[0].id
@@ -261,9 +263,11 @@ async function printStruct(data) {
                 <p class="text-center">Laundry Express Pratama</p>
                 <p class="text-center">
                     <!-- <img id="img-print-logo" src="/assets/logo.jpeg"
-                                                style="width: 100px; -webkit-print-color-adjust: exact !important;">
-                                            <br> -->
-                    Jl DI panjaitan, Lepo-Lepo, Poros bandara, Baruga, Kota Kendari, Sulawesi Tenggara</p>
+                                                                style="width: 100px; -webkit-print-color-adjust: exact !important;">
+                                                            <br> -->
+                    Jl DI panjaitan, Lepo-Lepo, Poros bandara, Baruga, Kota Kendari, Sulawesi Tenggara
+                    <br> No Telp. 0852 2227 9082
+                </p>
                 <p class="text-center">
                     <small>ID: </small><b>${data[0].id}</b> <br>
                     <small>${data[0].cr_time.substring(0, 16).replace('T', ' ').replace('Z', ' ')}</small>
@@ -280,6 +284,12 @@ async function printStruct(data) {
                 <div class="row">
                     <div class="col-4">Berat (Kg)</div>
                     <div class="col-8"><b>${data[0].data.kg}</b></div>
+                </div>
+                <div class="row">
+                    <div class="col-4">Pengambilan</div>
+                    <div class="col-8"><b>${data[0].finish_date ? 
+                        data[0].finish_date.substring(0, 16).replace('T', '').replace('Z', ' ') 
+                        : "-"}</b></div>
                 </div>
                 <p class="text-center">
                     <small>Bayar (Rp)</small> <br>
@@ -498,7 +508,8 @@ async function addtransaction() {
                     $('#new-member').hide()
                     $('.selectednumber').on('click', function () {
                         console.log(this.value);
-                        inputTransaction(this.value, false)
+                        // inputTransaction(this.value, false)
+                        inputNewTransaction(this.value, false)
                         swal.showLoading()
                     })
                 } else {
@@ -506,7 +517,8 @@ async function addtransaction() {
                     render(html``, $('#numberlist')[0])
                     $('#new-member').show()
                     $('#input-new-member').on('click', function () {
-                        inputTransaction($('#input-phone').val(), true)
+                        // inputTransaction($('#input-phone').val(), true)
+                        inputNewTransaction($('#input-phone').val(), true)
                     })
                 }
             }).catch(function (error) {
@@ -514,6 +526,173 @@ async function addtransaction() {
             });
         }, 1000)
     })
+}
+
+/** New Method */
+async function inputNewTransaction(phone_number, isNewMember) {
+
+    if (isNaN(phone_number)) phone_number = ''
+
+    var result = [{ phone_number: phone_number, fullname: '', address: '' }]
+
+    if (!isNewMember) {
+        result = await new Promise(function (resolve, reject) {
+            const options = {
+                method: 'POST',
+                url: '/service/customer/find/input',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                data: { input: phone_number }
+            };
+
+            axios.request(options).then(function (response) {
+                console.log(response.data);
+                var data = response.data.data
+                resolve(data)
+            }).catch(function (error) {
+                console.error(error);
+                reject(error)
+            });
+        })
+    }
+
+    var productList = await new Promise(function (resolve, reject) {
+        const options = {
+            method: 'POST',
+            url: '/service/product',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+
+        axios.request(options).then(function (response) {
+            console.log(response.data);
+            resolve(response.data.data)
+        }).catch(function (error) {
+            console.error(error);
+            reject(error)
+        });
+    })
+
+    swal.showModal('Input Transaksi', html`
+        <div class="form-floating mb-3">
+            <input disabled type="text" class="form-control" value="${branchdata.name}(${branchdata.id})">
+            <label>Cabang</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="input-customer-number" value="${result[0].phone_number}">
+            <label for="floatingInput">Nomor Pelanggan</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="input-customer-name" value="${result[0].fullname}">
+            <label for="input-customer-name">Nama Pelanggan</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="input-customer-address" value="${result[0].address}">
+            <label for="input-customer-address">Alamat Pelanggan</label>
+        </div>
+        <hr>
+        <div id="transaction-container">
+            <h3>Daftar transaksi</h3>
+            <div id="trx-1"></div>
+            <div id="trx-2"></div>
+            <div id="trx-3"></div>
+            <div id="trx-4"></div>
+            <div id="trx-5"></div>
+            <button id="add-trx" type="button" class="btn btn-primary">Tambah</button>
+            <button id="sub-trx" type="button" class="btn btn-primary">Kurang</button>
+        </div>
+        <hr>
+        <div class="form-floating mb-3">
+            <h5>Total Bayar (Rp)</h5>
+            <h6 id="input-data-amount"></h6>
+        </div>
+        <div class="mb-3">
+            <button id="confirmButton" type="button" class="btn btn-outline-dark">Input</button>
+            <button id="cancelButton" type="button" class="btn btn-outline-dark">Batalkan</button>
+        </div>
+    `)
+
+    if (isNewMember) {
+        $('#input-customer-number').prop("disabled", false);
+        $('#input-customer-name').prop("disabled", false);
+        $('#input-customer-address').prop("disabled", false);
+    }
+    else {
+        $('#input-customer-number').prop("disabled", true);
+        $('#input-customer-name').prop("disabled", true);
+        $('#input-customer-address').prop("disabled", true);
+    }
+
+    var trxCount = 0;
+    $('#add-trx').on('click', function () {         
+        if(trxCount<5){
+            trxCount++;
+            var currentCount= trxCount;
+            render(html`
+            <div class="mt-3 mb-3 px-3">
+                <small>Transaksi - ${currentCount}</small>
+                <div class="form-floating  mb-3">
+                    <select class="form-select" id="input-data-product-${currentCount}" aria-label="Floating label select example">
+                        <option value="-">Pilih Produk...</option>
+                        ${productList.map((item) => html`<option value="${item.id}">${item.name}</option>`)}
+                    </select>
+                    <label for="floatingSelect">Produk</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input type="number" class="form-control" id="input-data-weight-${currentCount}">
+                    <label for="floatingInput">Berat (KG)</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input disabled type="number" class="form-control" id="input-data-amount-per-${currentCount}">
+                    <label for="floatingInput">Harge Per (KG)</label>
+                </div>
+            </div>
+            `, $('#trx-'+currentCount)[0])
+
+            $('#input-data-product-'+currentCount).on('change', function () {
+                try {
+                    var id = this.value
+                    console.log(id);
+                    var product = productList.find(item => item.id == id)
+                    console.log(product);
+                    var jsonrules = JSON.parse(product.rules)
+                    $('#input-data-amount-per-'+currentCount).val(jsonrules.price)
+                    $('#input-data-weight-'+currentCount).val('')
+                } catch (error) {
+                    $('#input-data-amount-per-'+currentCount).val('')
+                    $('#input-data-weight-'+currentCount).val('')
+                }
+            })
+
+            $('#input-data-weight-'+currentCount).on('input', function () {
+                cekTotalBayar()
+            })
+        } else {
+            alert('maksimal transaksi 5')
+        }
+    })
+    $('#sub-trx').on('click', function () { 
+        if(trxCount>0){
+            render(html``, $('#trx-'+trxCount)[0])
+            trxCount--;
+        } else {
+            alert('tidak ada daftar transaksi')
+        }
+    })
+
+    function cekTotalBayar() {
+        var total = 0; 
+        for (let index = 1; index <= trxCount; index++) {
+            var weight = parseFloat($('#input-data-weight-'+index).val())
+            var price = parseFloat($('#input-data-amount-per-'+index).val())
+            var currenttotal = Math.round(price * weight)
+            console.log(index + "-" + currenttotal);
+            total = total + currenttotal
+        }
+        $('#input-data-amount').html(total)
+    }
 }
 
 async function inputTransaction(phone_number, isNewMember) {
@@ -596,13 +775,13 @@ async function inputTransaction(phone_number, isNewMember) {
                 <input disabled type="number" class="form-control" id="input-data-amount-per">
                 <label for="floatingInput">Harge Per (KG)</label>
             </div>
-            <!-- <p class="text-center" >Tambahan</p>
+            <p class="text-center">Tambahan</p>
             <hr>
             <div id="additional-product"></div>
             <hr>
             <div class="d-grid gap-2">
                 <button id="add-extra-product" class="btn btn-primary" type="button">Tambah</button>
-            </div> -->
+            </div>
         </div>
         <hr>
         <div class="form-floating mb-3">
@@ -626,21 +805,47 @@ async function inputTransaction(phone_number, isNewMember) {
             ${unsafeHTML(additional_product_view)}
             <p><small>Tambahan - ${extraCount}</small></p>
             <div class="form-floating  mb-3">
-                <select class="form-select" id="input-data-product" aria-label="Floating label select example">
+                <select class="form-select" id="input-data-product-ex-${extraCount}" aria-label="Floating label select example">
                     <option value="-">Pilih Produk...</option>
                     ${productList.map((item) => html`<option value="${item.id}">${item.name}</option>`)}
                 </select>
-                <label for="floatingSelect">Produk</label>
+                <label>Produk</label>
             </div>
             <div class="form-floating mb-3">
-                <input type="number" class="form-control" id="input-data-weight">
-                <label for="floatingInput">Berat (KG)</label>
+                <input type="number" class="form-control" id="input-data-weight-ex-${extraCount}">
+                <label>Berat (KG)</label>
             </div>
             <div class="form-floating mb-3">
-                <input disabled type="number" class="form-control" id="input-data-amount-per">
-                <label for="floatingInput">Harge Per (KG)</label>
+                <input disabled type="number" class="form-control" id="input-data-amount-per-ex-${extraCount}">
+                <label>Harge Per (KG)</label>
             </div>
         `, $('#additional-product')[0])
+
+        for (let index = 1; index < extraCount; index++) {
+            $('#input-data-product' + '-ex-' + index).on('change', function () {
+                try {
+                    var id = this.value
+                    console.log(id);
+                    var product = productList.find(item => item.id == id)
+                    console.log(product);
+                    var jsonrules = JSON.parse(product.rules)
+                    $('#input-data-amount-per' + '-ex-' + index).val(jsonrules.price)
+                    $('#input-data-amount').val('')
+                    $('#input-data-weight' + '-ex-' + index).val('')
+                } catch (error) {
+                    $('#input-data-amount-per' + '-ex-' + index).val('')
+                    $('#input-data-amount').val('')
+                    $('#input-data-weight' + '-ex-' + index).val('')
+                }
+            })
+
+            $('#input-data-weight' + '-ex-' + index).on('input', function () {
+                var per = parseInt($('#input-data-amount-per' + '-ex-' + index).val())
+                var weight = parseFloat($('#input-data-weight' + '-ex-' + index).val())
+                var total = Math.round(per * weight)
+                $('#input-data-amount').val(total)
+            })
+        }
     })
 
 
@@ -681,6 +886,8 @@ async function inputTransaction(phone_number, isNewMember) {
         var total = Math.round(per * weight)
         $('#input-data-amount').val(total)
     })
+
+
 
     $('#confirmButton').on('click', function () {
         const options = {
