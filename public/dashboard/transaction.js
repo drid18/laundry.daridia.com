@@ -125,9 +125,11 @@ async function setTransactionData(url, dataparam) {
             { title: "pembayaran", data: 'payment_view', width: '120px' },
             { title: "pelanggan", data: 'data.customername', width: '150px' },
             { title: "no hp", data: 'customer', width: '150px' },
-            { title: "produk", data: 'data.productname', width: '150px' },
-            { title: "berat (Kg)", data: 'data.kg', width: '100px' },
-            { title: "bayar (Rp)", data: 'amount', width: '100px' },
+            { title: "produk", data: 'product_view', width: '150px' },
+            { title: "berat (Kg)", data: 'kg_view', width: '100px' },
+            { title: "Harga Awal (Rp)", data: 'realamount', width: '100px' },
+            { title: "Diskon (%)", data: 'discount', width: '100px' },
+            { title: "Jumlah Bayar (%)", data: 'amount', width: '100px' },
         ]
     } else {
         columnlayout = [
@@ -179,6 +181,20 @@ async function setTransactionData(url, dataparam) {
 
                     element.data = JSON.parse(element.data)
 
+                    var productList = element.data.datatrx
+                    element.product_view = "<ol>"
+                    for (let x = 0; x < productList.length; x++) {
+                        element.product_view += `<li>${productList[x].productname}</li>`
+                    } element.product_view += "</ol>"
+
+                    element.kg_view = "<ol>"
+                    for (let x = 0; x < element.data.datatrx.length; x++) {
+                        element.kg_view += `<li>${element.data.datatrx[x].kg} Kg</li>`;
+                    } element.kg_view += "</ol>"
+
+                    element.discount = element.data.discont + "%"
+                    element.realamount = element.data.realamount
+
                     element.branch_name_view = element.branch_name !== null ? element.branch_name : "-"
 
                     element.transaction_view =
@@ -211,9 +227,9 @@ async function setTransactionData(url, dataparam) {
             },
         },
         columns: columnlayout,
-        columnDefs: [
-            { "className": "dt-center", "targets": "_all" }
-        ],
+        // columnDefs: [
+        //     { "className": "dt-center", "targets": "_all" }
+        // ],
         dom: "frtp",
         drawCallback: function (settings) {
             setTimeout(() => {
@@ -263,34 +279,44 @@ async function printStruct(data) {
                 <p class="text-center">Laundry Express Pratama</p>
                 <p class="text-center">
                     <!-- <img id="img-print-logo" src="/assets/logo.jpeg"
-                                                                style="width: 100px; -webkit-print-color-adjust: exact !important;">
-                                                            <br> -->
+                                                                                        style="width: 100px; -webkit-print-color-adjust: exact !important;">
+                                                                                    <br> -->
                     Jl DI panjaitan, Lepo-Lepo, Poros bandara, Baruga, Kota Kendari, Sulawesi Tenggara
                     <br> No Telp. 0852 2227 9082
                 </p>
+                <p class="text-center">--------------------</p>
                 <p class="text-center">
                     <small>ID: </small><b>${data[0].id}</b> <br>
                     <small>${data[0].cr_time.substring(0, 16).replace('T', ' ').replace('Z', ' ')}</small>
                 </p>
-                <small>${data[0].data.productname}</small>
-                <div class="row">
-                    <div class="col-4">Nama</div>
-                    <div class="col-8"><b>${data[0].data.customername}</b></div>
+                <p class="text-center">--------------------</p>
+                <p class="text-center"><b>${data[0].data.customername}</b><br><b>${data[0].customer}</b></p>
+                <p class="text-center">--------------------</p>
+                <div>
+                    ${data[0].data.datatrx.map(item => html`
+                        <div class="row">
+                            <div class="col-4">Produk </div>
+                            <div class="col-8">:<b>${item.productname}</b></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4">Berat</div>
+                            <div class="col-8">:<b>${item.kg}</b> Kg</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4">Harga</div>
+                            <div class="col-8">:Rp. <b>${item.total}</b></div>
+                        </div>
+                        <br><br>
+                    `)}
                 </div>
-                <div class="row">
-                    <div class="col-4">No Hp</div>
-                    <div class="col-8"><b>${data[0].customer}</b></div>
-                </div>
-                <div class="row">
-                    <div class="col-4">Berat (Kg)</div>
-                    <div class="col-8"><b>${data[0].data.kg}</b></div>
-                </div>
-                <div class="row">
-                    <div class="col-4">Pengambilan</div>
-                    <div class="col-8"><b>${data[0].finish_date ? 
-                        data[0].finish_date.substring(0, 16).replace('T', '').replace('Z', ' ') 
-                        : "-"}</b></div>
-                </div>
+                <p class="text-center">--------------------</p>
+                <p class="text-center">Pengambilan 
+                    <b>
+                    ${data[0].finish_date ?
+                            data[0].finish_date.substring(0, 16).replace('T', '').replace('Z', ' ')
+                            : "-"}
+                    </b>
+                </p>
                 <p class="text-center">
                     <small>Bayar (Rp)</small> <br>
                     <b>Rp ${data[0].data.price} x ${data[0].data.kg} Kg = Rp ${data[0].amount}</b> <br>
@@ -600,13 +626,25 @@ async function inputNewTransaction(phone_number, isNewMember) {
             <div id="trx-3"></div>
             <div id="trx-4"></div>
             <div id="trx-5"></div>
+            <div id="trx-6"></div>
+            <div id="trx-7"></div>
+            <div id="trx-8"></div>
+            <div id="trx-9"></div>
+            <div id="trx-10"></div>
             <button id="add-trx" type="button" class="btn btn-primary">Tambah</button>
             <button id="sub-trx" type="button" class="btn btn-primary">Kurang</button>
         </div>
         <hr>
         <div class="form-floating mb-3">
+            <input type="number" minlength="0" maxlength="100" class="form-control" id="trx-discount" value="0">
+            <label for="input-customer-address">Terapkan Diskon (dalam %)</label>
+        </div>
+        <small id="discount-text"></small>
+        <div class="form-floating mb-3">
             <h5>Total Bayar (Rp)</h5>
             <h6 id="input-data-amount"></h6>
+        
+        </div>
         </div>
         <div class="mb-3">
             <button id="confirmButton" type="button" class="btn btn-outline-dark">Input</button>
@@ -626,10 +664,10 @@ async function inputNewTransaction(phone_number, isNewMember) {
     }
 
     var trxCount = 0;
-    $('#add-trx').on('click', function () {         
-        if(trxCount<5){
+    $('#add-trx').on('click', function () {
+        if (trxCount < 10) {
             trxCount++;
-            var currentCount= trxCount;
+            var currentCount = trxCount;
             render(html`
             <div class="mt-3 mb-3 px-3">
                 <small>Transaksi - ${currentCount}</small>
@@ -649,50 +687,128 @@ async function inputNewTransaction(phone_number, isNewMember) {
                     <label for="floatingInput">Harge Per (KG)</label>
                 </div>
             </div>
-            `, $('#trx-'+currentCount)[0])
+            `, $('#trx-' + currentCount)[0])
 
-            $('#input-data-product-'+currentCount).on('change', function () {
+            $('#input-data-product-' + currentCount).on('change', function () {
                 try {
                     var id = this.value
                     console.log(id);
                     var product = productList.find(item => item.id == id)
                     console.log(product);
                     var jsonrules = JSON.parse(product.rules)
-                    $('#input-data-amount-per-'+currentCount).val(jsonrules.price)
-                    $('#input-data-weight-'+currentCount).val('')
+                    $('#input-data-amount-per-' + currentCount).val(jsonrules.price)
+                    $('#input-data-weight-' + currentCount).val('')
                 } catch (error) {
-                    $('#input-data-amount-per-'+currentCount).val('')
-                    $('#input-data-weight-'+currentCount).val('')
+                    $('#input-data-amount-per-' + currentCount).val('')
+                    $('#input-data-weight-' + currentCount).val('')
                 }
             })
 
-            $('#input-data-weight-'+currentCount).on('input', function () {
+            $('#input-data-weight-' + currentCount).on('input', function () {
                 cekTotalBayar()
             })
         } else {
-            alert('maksimal transaksi 5')
+            alert('maksimal transaksi 10')
         }
     })
-    $('#sub-trx').on('click', function () { 
-        if(trxCount>0){
-            render(html``, $('#trx-'+trxCount)[0])
+    $('#sub-trx').on('click', function () {
+        if (trxCount > 0) {
+            render(html``, $('#trx-' + trxCount)[0])
             trxCount--;
+            cekTotalBayar()
+            resetDiscount()
         } else {
             alert('tidak ada daftar transaksi')
         }
     })
 
+    $('#trx-discount').on('change', function () {
+        var discont = parseInt($('#trx-discount').val())
+        if (discont > 100) $('#trx-discount').val('100')
+        if (discont < 0) $('#trx-discount').val('0')
+        cekTotalBayar()
+        var total = $('#input-data-amount').html();
+        if (discont > 0) {
+            $('#discount-text').html(`Diskon sebesar ${$('#trx-discount').val()}% dari harga awal Rp.${total}`)
+            var totalAfter = total - (total * (discont / 100))
+            $('#input-data-amount').html(totalAfter);
+        } else {
+            $('#discount-text').html(``)
+        }
+
+    })
+
+    var amountbeforediscount = 0;
     function cekTotalBayar() {
-        var total = 0; 
+        var total = 0;
         for (let index = 1; index <= trxCount; index++) {
-            var weight = parseFloat($('#input-data-weight-'+index).val())
-            var price = parseFloat($('#input-data-amount-per-'+index).val())
+            var weight = parseFloat($('#input-data-weight-' + index).val())
+            var price = parseFloat($('#input-data-amount-per-' + index).val())
             var currenttotal = Math.round(price * weight)
             console.log(index + "-" + currenttotal);
             total = total + currenttotal
         }
         $('#input-data-amount').html(total)
+        amountbeforediscount = total;
     }
+
+    function resetDiscount() {
+        $('#discount-text').html(``)
+        $('#trx-discount').val(``)
+    }
+
+    $('#confirmButton').on('click', function (params) {
+        var product = []
+        var dataTrx = []
+        for (let index = 1; index <= trxCount; index++) {
+            var weight = parseFloat($('#input-data-weight-' + index).val())
+            var price = parseFloat($('#input-data-amount-per-' + index).val())
+            var currenttotal = Math.round(price * weight)
+            var currentProduct = $('#input-data-product-' + index).val()
+            product.push(currentProduct)
+            dataTrx.push({
+                kg: weight,
+                price: price,
+                total: currenttotal,
+                product: currentProduct,
+                productname: $(`#input-data-product-${index} option:selected`).text()
+            })
+        }
+
+        // console.log(product);
+        // console.log(data);
+
+        const options = {
+            method: 'POST',
+            url: '/service/transaction/add',
+            headers: { 'Content-Type': 'application/json' },
+            data: {
+                user: 'All User',
+                customer: $('#input-customer-number').val(),
+                product: JSON.stringify(product),
+                payment: 0,
+                amount: $('#input-data-amount').html(),
+                status: 0,
+                branch: branchdata.id,
+                data: JSON.stringify({
+                    discont: $('#trx-discount').val(),
+                    realamount: amountbeforediscount,
+                    customername: $('#input-customer-name').val(),
+                    customeraddress: $('#input-customer-address').val(),
+                    datatrx: dataTrx
+                })
+            }
+        };
+
+        swal.showLoading()
+        axios.request(options).then(function (response) {
+            console.log(response.data);
+            swal.showSuccess("Transaksi Baru Berhasil Ditambahkan!")
+            window.location.reload();
+        }).catch(function (error) {
+            console.error(error);
+        });
+    })
 }
 
 async function inputTransaction(phone_number, isNewMember) {
@@ -953,6 +1069,9 @@ async function editTransaction(data) {
         });
     })
 
+    var paid_date_view = data[0].paid_date ? data[0].paid_date.substring(0, 10) : ''
+    var done_date_view = data[0].finish_date ? data[0].finish_date.substring(0, 10) : ''
+
     swal.showModal('Ubah Data Transaksi', html`
                 <div class="form-floating mb-3">
                     <input disabled type="text" class="form-control" id="input-customer-number" value="${data[0].customer}">
@@ -962,9 +1081,22 @@ async function editTransaction(data) {
                     <input disabled type="text" class="form-control" id="input-customer-name" value="${data[0].data.customername}">
                     <label for="input-customer-name">Nama Pelanggan</label>
                 </div>
+                <div class="border border-dark mt-2 mb-2 pt-2 rounded">
+                    <h6>Daftar Transaksi</h6>
+                    <hr>
+                    ${unsafeHTML(data[0].product_view)}
+                </div>
+                <!-- <div class="form-floating mb-3">
+                                                                    <input disabled type="text" class="form-control" id="input-product-name" value="${data[0].product_view}">
+                                                                    <label for="input-product-name">Produk</label>
+                                                                </div> -->
                 <div class="form-floating mb-3">
-                    <input disabled type="text" class="form-control" id="input-product-name" value="${data[0].data.productname}">
-                    <label for="input-product-name">Produk</label>
+                    <input disabled type="text" class="form-control" id="input-product-realamount" value="Rp ${data[0].realamount}">
+                    <label for="input-product-amount">Harga Awal</label>
+                </div>
+                <div class="form-floating mb-3">
+                    <input disabled type="text" class="form-control" id="input-product-discount" value="${data[0].discount}">
+                    <label for="input-product-amount">Diskon</label>
                 </div>
                 <div class="form-floating mb-3">
                     <input disabled type="text" class="form-control" id="input-product-amount" value="Rp ${data[0].amount}">
@@ -978,12 +1110,20 @@ async function editTransaction(data) {
                     </select>
                     <label for="edit-input-status">Status</label>
                 </div>
+                <div id="view-date-paid" class="form-floating mb-3">
+                    <input disabled type="date" class="form-control" id="input-product-date-done" value="${done_date_view}">
+                    <label>Tanggal Pengambilan</label>
+                </div>
                 <div class="form-floating mb-3">
                     <select class="form-select" id="edit-input-payment" value="${data[0].payment}">
                         <option value="0">Belum Lunas</option>
                         <option value="1">Lunas</option>
                     </select>
                     <label for="edit-input-payment">Pembayaran</label>
+                </div>
+                <div id="view-date-paid" class="form-floating mb-3">
+                    <input disabled type="date" class="form-control" id="input-product-date-paid" value="${paid_date_view}">
+                    <label>Tanggal Pembayaran</label>
                 </div>
                 <div class="mb-3">
                     <button id="input-edit-transaction" type="button" class="btn btn-outline-dark">Ubah Produk</button>
@@ -993,7 +1133,40 @@ async function editTransaction(data) {
     $("#edit-input-status").val(data[0].status).change();
     $("#edit-input-payment").val(data[0].payment).change();
 
+    if ($("#edit-input-status").val() === '2') $('#input-product-date-done').prop('disabled', false);
+    if ($("#edit-input-payment").val() === '1') $('#input-product-date-paid').prop('disabled', false);
+
+    $("#edit-input-status").on('change', function (params) {
+        if ($("#edit-input-status").val() === '2') {
+            $('#input-product-date-done').prop('disabled', false);
+        } else {
+            $('#input-product-date-done').prop('disabled', true);
+            $('#input-product-date-done').val('')
+        }
+    })
+
+    $("#edit-input-payment").on('change', function (params) {
+        if ($("#edit-input-payment").val() === '1') {
+            $('#input-product-date-paid').prop('disabled', false);
+        } else {
+            $('#input-product-date-paid').prop('disabled', true);
+            $('#input-product-date-paid').val('')
+        }
+    })
+
     $('#input-edit-transaction').on('click', function () {
+
+        console.log('paid date: ' + $('#input-product-date-paid').val())
+        console.log($('#input-product-date-done').val())
+
+        if ($("#edit-input-status").val() === '2' && $('#input-product-date-done').val() === '') {
+            alert('tanggal pengambilan harus di isi')
+            return;
+        }
+        if ($("#edit-input-payment").val() === '1' && $('#input-product-date-paid').val() === '') {
+            alert('tanggal pembayaran harus di isi')
+            return;
+        }
 
         const options = {
             method: 'POST',
@@ -1008,7 +1181,9 @@ async function editTransaction(data) {
                 "product": data[0].product,
                 "payment": $('#edit-input-payment').val(),
                 "amount": data[0].amount,
-                "status": $('#edit-input-status').val()
+                "status": $('#edit-input-status').val(),
+                "date_paid": $('#input-product-date-paid').val(),
+                "date_done": $('#input-product-date-done').val()
             }
         };
         console.log(options);
