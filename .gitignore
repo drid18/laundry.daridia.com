@@ -2,3 +2,5 @@ node_modules/
 logs/
 package-lock.json
 config/conf.json
+public.zip
+src.zip

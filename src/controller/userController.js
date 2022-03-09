@@ -70,6 +70,32 @@ class userController {
             return (error)
         }
     }
+
+    static async setUserConfig(req = express.request){
+        try {
+            var userid = req.body.userid
+            var branch = req.body.branch
+            var userdata = await dbmodel.userapp.findByPk(userid)
+            userdata.info = JSON.stringify({
+                branch:branch
+            })
+            await userdata.save()
+            return ({ rc: "00", rm: "success"})
+        } catch (error) {
+            return (error)
+        }
+    }
+    
+    static async getUserConfig(req = express.request){
+        try {
+            var userid = req.body.userid
+            var userdata = await dbmodel.userapp.findByPk(userid)
+            return ({ rc: "00", rm: "success", data:JSON.parse(userdata.info)})
+        } catch (error) {
+            return ({ rc: "99", rm: "failed"})
+        }
+    }
+
     static async deleteUser(req = express.request) {
         try {
             var userid = req.body.userid

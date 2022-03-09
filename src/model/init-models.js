@@ -6,6 +6,7 @@ const _product = require("./product");
 const _transaction = require("./transaction");
 const _userapp = require("./userapp");
 const _branch = require("./branch");
+const _appconfig = require("./appconfig");
 
 function initModels(sequelize) {
   const activity = _activity(sequelize, DataTypes);
@@ -15,6 +16,7 @@ function initModels(sequelize) {
   const transaction = _transaction(sequelize, DataTypes);
   const userapp = _userapp(sequelize, DataTypes);
   const branch = _branch(sequelize, DataTypes);
+  const appconfig = _appconfig(sequelize, DataTypes);
 
 
   return {
@@ -24,7 +26,8 @@ function initModels(sequelize) {
     product,
     transaction,
     userapp,
-    branch
+    branch,
+    appconfig
   };
 }
 module.exports = initModels;
