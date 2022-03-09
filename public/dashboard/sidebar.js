@@ -65,7 +65,6 @@ var menuAdmin = html`
 
 export class sidebar {
     static renderHTML() {
-        console.log("usertype: ", session.data.type);
         render(html`
             <div class="d-flex justify-content-end mt-2 me-2">
                 <button id="btn-hidesidebar" type="button" class="btn btn-outline-dark">
@@ -190,7 +189,6 @@ export class sidebar {
             };
 
             axios.request(options).then(function (response) {
-                console.log(response.data);
                 window.location.href = "/login"
             }).catch(function (error) {
                 console.error(error);
@@ -202,7 +200,6 @@ export class sidebar {
 function setWindowsLayout() {
     var w = window.innerWidth;
     var h = window.innerHeight;
-    console.log(w, h);
 
     if (w > h) {
         $('#sidebar').show('fast')
