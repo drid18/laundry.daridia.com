@@ -98,21 +98,31 @@ async function rendertable() {
                             : '<p class="bg-primary rounded text-center text-white">Lunas</p>'
 
                         /* START data product row */
-                        var data = JSON.parse(element.data)
-                        var productList = data.datatrx
-                        element.product_view = "<ol>"
-                        for (let x = 0; x < productList.length; x++) {
-                            element.product_view += `<li>${productList[x].productname}</li>`
-                        } element.product_view += "</ol>"
+                        var productList = element.data.datatrx;
+                        if (productList) {
+                          element.product_view = "<ol>";
+                          for (let x = 0; x < productList.length; x++) {
+                            element.product_view += `<li>${productList[x].productname}</li>`;
+                          }
+                          element.product_view += "</ol>";
 
-                        element.kg_view = "<ol>"
-                        for (let x = 0; x < data.datatrx.length; x++) {
-                            element.kg_view += `<li>${data.datatrx[x].kg} Kg</li>`;
-                        } element.kg_view += "</ol>"
+                          element.kg_view = "<ol>";
+                          for (let x = 0; x < productList.length; x++) {
+                            element.kg_view += `<li>${productList[x].kg} Kg</li>`;
+                          }
+                          element.kg_view += "</ol>";
 
-                        element.discount = data.discont + "%"
-                        element.realamount = data.realamount
-                        element.costumername = data.customername
+                          element.discount = element.data.discont + "%";
+                          element.realamount = element.data.realamount;
+                          element.costumername = data.customername;
+                        } else {
+                          element.product_view = "Invalid Data!";
+                          element.kg_view = "Invalid Data!";
+
+                          element.discount = "Invalid Data!";
+                          element.realamount = "Invalid Data!";
+                          element.costumername = "Invalid Data!";
+                        }
                         /* END */
                     }
                     return dataset;

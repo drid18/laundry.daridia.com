@@ -72,9 +72,7 @@ async function rendertable() {
             { title: "nama", data: 'fullname', width: '200px' },
             { title: "nomor hp", data: 'phone_number', width: '150px' },
             { title: "Jumlah Transaksi", data: 'sum_trx', width: '150px' },
-            { title: "alamat", data: 'address', width: '150px' },
-            { title: "tanggal dibuat", data: 'cr_time_view', width: '150px' },
-            { title: "tanggal diubah", data: 'mod_time_view', width: '150px' },
+            { title: "alamat", data: 'address', width: '150px' }
         ],
         dom: "frtp",
         "columnDefs": [{

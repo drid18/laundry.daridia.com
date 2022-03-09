@@ -279,21 +279,33 @@ async function setTransactionData(url, dataparam) {
 
                     element.data = JSON.parse(element.data)
 
-                    var productList = element.data.datatrx
-                    element.product_view = "<ol>"
-                    for (let x = 0; x < productList.length; x++) {
-                        element.product_view += `<li>${productList[x].productname}</li>`
-                    } element.product_view += "</ol>"
+                    try {
+                      var productList = element.data.datatrx;
+                      if (productList) {
+                        element.product_view = "<ol>";
+                        for (let x = 0; x < productList.length; x++) {
+                          element.product_view += `<li>${productList[x].productname}</li>`;
+                        }
+                        element.product_view += "</ol>";
 
-                    element.kg_view = "<ol>"
-                    for (let x = 0; x < element.data.datatrx.length; x++) {
-                        element.kg_view += `<li>${element.data.datatrx[x].kg} Kg</li>`;
-                    } element.kg_view += "</ol>"
+                        element.kg_view = "<ol>";
+                        for (let x = 0; x < productList.length; x++) {
+                          element.kg_view += `<li>${productList[x].kg} Kg</li>`;
+                        }
+                        element.kg_view += "</ol>";
 
-                    element
+                        element.discount = element.data.discont + "%";
+                        element.realamount = element.data.realamount;
+                      } else {
+                        element.product_view = "Invalid Data!";
+                        element.kg_view = "Invalid Data!";
 
-                    element.discount = element.data.discont + "%"
-                    element.realamount = element.data.realamount
+                        element.discount = "Invalid Data!";
+                        element.realamount = "Invalid Data!";
+                      }
+                    } catch (error) {
+                      console.log("Parsing data transaction went wrong");
+                    }
 
                     element.branch_name_view = element.branch_name !== null ? element.branch_name : "-"
 
@@ -766,6 +778,8 @@ async function inputNewTransaction(phone_number, isNewMember) {
             <button id="confirmButton" type="button" class="btn btn-outline-dark">Input</button>
             <button id="cancelButton" type="button" class="btn btn-outline-dark">Batalkan</button>
         </div>
+
+        <div id="input-alert" class="text-danger"></div>
     `)
 
     $('#cancelButton').on('click', function () {
@@ -892,11 +906,16 @@ async function inputNewTransaction(phone_number, isNewMember) {
     $('#confirmButton').on('click', function (params) {
         var product = []
         var dataTrx = []
+        var trxvalid = true;
         for (let index = 1; index <= trxCount; index++) {
             var weight = parseFloat($('#input-data-weight-' + index).val())
             var price = parseFloat($('#input-data-amount-per-' + index).val())
             var currenttotal = Math.round(price * weight)
             var currentProduct = $('#input-data-product-' + index).val()
+
+            if ($('#input-data-weight-' + index).val() === '' || $('#input-data-amount-per-' + index).val() === '') {
+                trxvalid = false;
+            }
             product.push(currentProduct)
             dataTrx.push({
                 kg: weight,
@@ -905,10 +924,52 @@ async function inputNewTransaction(phone_number, isNewMember) {
                 product: currentProduct,
                 productname: $(`#input-data-product-${index} option:selected`).text()
             })
+            
+        }
+
+        if(!trxvalid){
+            $("#input-alert").html(`
+                Tentukan produk dan berat pada Transaksi
+            `);
+            setTimeout(() => {
+              $("#input-alert").html(``);
+            }, 5000);
+            trxvalid = false;
+            return;
         }
 
         // console.log(product);
         // console.log(data);
+        if(trxCount <= 0){
+            $('#input-alert').html(`
+                Daftar Transaksi tidak boleh kosong
+            `)
+            setTimeout(() => {
+                $('#input-alert').html(``)
+            }, 5000);
+            return;
+        }
+
+        if (
+          $("#input-customer-number").val() === "" ||
+          $("#input-customer-name").val() === "" ||
+          $("#input-customer-address").val() === ""
+        ) {
+            $('#input-alert').html(`
+                Nama dan Nomor Pelanggan tidak boleh kosong
+                <br> Pastikan data diisi dengan benar
+                <br><br>
+                <small>Catatan:<br> 
+                Alamat dapat diisi dengan region. misal: Puuwatu, Anduonohu
+                <br>
+                Jika Nama dan Nomor kosong, maka edit terlebih dahulu pelanggan tersebut melalui menu pelanggan
+                </small>
+            `)
+            setTimeout(() => {
+                $('#input-alert').html(``)
+            }, 5000);
+            return;
+        }
 
         const options = {
             method: 'POST',
