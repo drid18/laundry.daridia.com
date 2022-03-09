@@ -7,6 +7,7 @@ const { reportController } = require('../controller/reportController')
 const { sessionController } = require('../controller/sessionController')
 const { transactionController } = require('../controller/transactionController')
 const { userController } = require('../controller/userController')
+const { configController } = require('../controller/configController')
 const { dbmodel } = require('../model/db')
 const { log4js } = require('../utility/logger')
 const logger = log4js.getLogger(require('path').basename(__filename, '.js'))
@@ -34,6 +35,8 @@ class mainRouter {
                 case '/service/user/update': response = await userController.updateUser(req); break;
                 case '/service/user/delete': response = await userController.deleteUser(req); break;
                 case '/service/user/setstatus': response = await userController.setStatus(req); break;
+                case '/service/user/setconfig': response = await userController.setUserConfig(req); break;
+                case '/service/user/getconfig': response = await userController.getUserConfig(req); break;
                 case '/service/user': response = await userController.getall(req); break;
 
                 case '/service/user/login': response = await sessionController.login(req); break;
@@ -74,6 +77,9 @@ class mainRouter {
                 case '/service/report/customer/transaction': response = await reportController.getCustomerTransactionPerMonth(req); break; 
                 case '/service/report/transaction/bytrx': response = await reportController.getTransactionByTrxDate(req); break; 
                 case '/service/report/transaction/bypaid': response = await reportController.getTransactionByPaidDate(req); break; 
+                
+                case '/service/config/getall': response = await configController.getDefaultConfig(req); break; 
+                case '/service/config/setall': response = await configController.setConfig(req); break; 
                 
                 default: response = { rc: 99, rm: "path not found" }; break;
             }

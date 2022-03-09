@@ -97,11 +97,23 @@ async function rendertable() {
                         element.payment_view = element.payment === 0 ? '<p class="bg-secondary rounded text-center text-white">Belum Lunas</p>'
                             : '<p class="bg-primary rounded text-center text-white">Lunas</p>'
 
-                        var dataJson = JSON.parse(element.data)
-                        element.productname = dataJson.productname
-                        element.kg = dataJson.kg
-                        element.price = dataJson.price
-                        element.costumername = dataJson.customername
+                        /* START data product row */
+                        var data = JSON.parse(element.data)
+                        var productList = data.datatrx
+                        element.product_view = "<ol>"
+                        for (let x = 0; x < productList.length; x++) {
+                            element.product_view += `<li>${productList[x].productname}</li>`
+                        } element.product_view += "</ol>"
+
+                        element.kg_view = "<ol>"
+                        for (let x = 0; x < data.datatrx.length; x++) {
+                            element.kg_view += `<li>${data.datatrx[x].kg} Kg</li>`;
+                        } element.kg_view += "</ol>"
+
+                        element.discount = data.discont + "%"
+                        element.realamount = data.realamount
+                        element.costumername = data.customername
+                        /* END */
                     }
                     return dataset;
                 } catch (error) {
@@ -118,10 +130,11 @@ async function rendertable() {
             { title: "Pembayaran", data: 'payment_view', width: '100px' },
             { title: "No Pelanggan", data: 'customer', width: '100px' },
             { title: "Nama Pelanggan", data: 'costumername', width: '100px' },
-            { title: "Produk", data: 'productname', width: '150px' },
-            { title: "Berat", data: 'kg', width: '50px' },
-            { title: "Satuan", data: 'price', width: '100px' },
-            { title: "Jumlah", data: 'amount', width: '150px' },
+            { title: "Produk", data: 'product_view', width: '150px' },
+            { title: "Berat", data: 'kg_view', width: '50px' },
+            { title: "Diskon", data: 'discount', width: '100px' },
+            { title: "Harga", data: 'realamount', width: '100px' },
+            { title: "Jumlah Bayar", data: 'amount', width: '150px' },
         ],
         dom: "frtp",
         "columnDefs": [{

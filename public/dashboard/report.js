@@ -17,26 +17,30 @@ export async function report() {
     if (branch === null) {
         await new Promise(async function (resolve, reject) {
             if (session.data.type !== 2) {
-                swal.showLoading()
-                var brachlist = await getBranchList();
-                swal.showModal('Pilih cabang', html`
-                    <div class="form-floating mb-3">
-                        <select class="form-select" id="input-branch">
-                            <option></option>
-                            <option value="all">Semua Cabang</option>
-                            ${brachlist.map(item => html`<option value="${item.id}">${item.name}</option>`)}
-                        </select>
-                        <label for="input-branch">Cabang</label>
-                    </div>
-                `)
-                $('#input-branch').on('change', function () {
-                    if ($('#input-branch').val() !== 'all') branch = $('#input-branch').val();
-                    else branch = null
-                    console.log('branch :' + branch);
-                    sessionStorage.setItem("branch", branch)
-                    swal.close()
-                    resolve(true)
-                })
+                // swal.showLoading()
+                // var brachlist = await getBranchList();
+                // swal.showModal('Pilih cabang', html`
+                //     <div class="form-floating mb-3">
+                //         <select class="form-select" id="input-branch">
+                //             <option></option>
+                //             <option value="all">Semua Cabang</option>
+                //             ${brachlist.map(item => html`<option value="${item.id}">${item.name}</option>`)}
+                //         </select>
+                //         <label for="input-branch">Cabang</label>
+                //     </div>
+                // `)
+                // $('#input-branch').on('change', function () {
+                //     if ($('#input-branch').val() !== 'all') branch = $('#input-branch').val();
+                //     else branch = null
+                //     console.log('branch :' + branch);
+                //     sessionStorage.setItem("branch", branch)
+                //     swal.close()
+                //     resolve(true)
+                // })
+                await getUserConfig()
+                console.log('branch :' + branch);
+                sessionStorage.setItem("branch", branch)
+                resolve(true)
             } else {
                 branch = session.data.branch
                 resolve(true)
@@ -48,7 +52,7 @@ export async function report() {
         <div class="container">
             <h1>LAPORAN</h1>
             <small id="cabang-name"></small>
-            <button id="btn-refresh" type="button" class="btn btn-sm btn-outline-dark float-right ms-3 mt-3 mb-3"
+            <button id="btn-change-branch" type="button" class="btn btn-sm btn-outline-dark float-right ms-3 mt-3 mb-3"
                 style="width:50px">ganti</button>
             <hr>
             <div id="detail-container" class="container-fluid"></div>
@@ -68,9 +72,29 @@ export async function report() {
         </div>
     `, $('#content-container')[0])
 
-    $('#btn-refresh').on('click', function () {
-        sessionStorage.setItem("branch", null)
-        window.location.reload()
+    $('#btn-change-branch').on('click', async function () {
+        // sessionStorage.setItem("branch", null)
+        // window.location.reload()
+        swal.showLoading()
+        var brachlist = await getBranchList();
+        swal.showModal('Pilih cabang', html`
+            <div class="form-floating mb-3">
+                <select class="form-select" id="input-branch">
+                    <option></option>
+                    <option value="all">Semua Cabang</option>
+                    ${brachlist.map(item => html`<option value="${item.id}">${item.name}</option>`)}
+                </select>
+                <label for="input-branch">Cabang</label>
+            </div>
+        `)
+        $('#input-branch').on('change', function () {
+            if ($('#input-branch').val() !== 'all') branch = $('#input-branch').val();
+            else branch = null
+            console.log('branch :' + branch);
+            sessionStorage.setItem("branch", branch)
+            setUserConfig(branch)
+            window.location.reload()
+        })
     })
 
     if (branch) {
@@ -361,3 +385,57 @@ async function getBranchData(id) {
         });
     })
 }
+
+async function getUserConfig(){
+
+    await new Promise((resolve, reject) => {
+        const options = {
+            method: 'POST',
+            url: '/service/user/getconfig',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            data: {userid: session.data.id}
+          };
+
+          console.log(options);
+          
+          axios.request(options).then(function (response) {
+            console.log(response.data);
+    
+            if(response.data.data !== null){
+                branch = response.data.data.branch
+                console.log('get branch: ' + branch);
+                resolve(true)
+            } else {
+                branch = null;
+                setUserConfig(branch)
+                resolve(true)
+            }
+    
+          }).catch(function (error) {
+            console.error(error);
+            resolve(true)
+          });
+    });
+    
+}
+
+function setUserConfig (branch) { 
+    const options = {
+        method: 'POST',
+        url: '/service/user/setconfig',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: {userid: session.data.id, branch: branch}
+      };
+      
+      axios.request(options).then(function (response) {
+        console.log(response.data);
+        resolve(true)
+      }).catch(function (error) {
+        console.error(error);
+        resolve(true)
+      });
+ }

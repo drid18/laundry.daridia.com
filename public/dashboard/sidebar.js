@@ -55,6 +55,12 @@ var menuAdmin = html`
             Laporan
         </a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" href="?configpage">
+            <i class="fa fa-cog me-2" style="width:20px"></i>
+            Pengaturan
+        </a>
+    </li>
 `
 
 export class sidebar {

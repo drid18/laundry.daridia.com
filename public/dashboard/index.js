@@ -1,10 +1,11 @@
-import { branch } from "./branch.js?v=1.3";
-import { customer } from "./man_customer.js?v=1.3";
-import { product } from "./man_product.js?v=1.3";
-import { user } from "./man_user.js?v=1.3";
-import { report } from "./report.js?v=1.3";
-import { sidebar } from "./sidebar.js?v=1.3";
-import { transaction } from "./transaction.js?v=1.3";
+import { branch } from "./branch.js?v=1.10";
+import { customer } from "./man_customer.js?v=1.10";
+import { product } from "./man_product.js?v=1.10";
+import { user } from "./man_user.js?v=1.10";
+import { report } from "./report.js?v=1.10";
+import { sidebar } from "./sidebar.js?v=1.10";
+import { transaction } from "./transaction.js?v=1.10";
+import { configpage } from "./configpage.js?v=1.10";
 
 export var session = null;
 
@@ -39,6 +40,9 @@ export var session = null;
     }
     if (urlarray[0] === '?branch') {
         branch()
+    }
+    if (urlarray[0] === '?configpage') {
+        configpage()
     }
 
     // checkSession()
