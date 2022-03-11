@@ -38,60 +38,25 @@ class transactionController {
                     address: dataparse.customeraddress
                 })
                 logger.info(newCustomer)
+                checkcustomer = newCustomer
+            } else {
+                if (isNaN(customer)) {
+                    var cd = new Date()
+                    var randomphone = cd.getFullYear().toString().substring(2) + cd.getMonth().toString() + cd.getDate().toString() + cd.getHours().toString() + cd.getMinutes().toString() + cd.getSeconds().toString();
+                    checkcustomer.phone_number = randomphone
+                    await checkcustomer.save()
+                }
+                if(dataparse.customeraddress || dataparse.customeraddress != ""){
+                    checkcustomer.address = dataparse.customeraddress
+                    await checkcustomer.save()
+                }
             }
 
             var newTransaction = await dbmodel.transaction.create({
                 cr_time: new Date().addHours(8),
                 mod_time: new Date().addHours(8),
                 user: user,
-                customer: customer,
-                product: product,
-                payment: payment,
-                amount: amount,
-                status: status,
-                data: data,
-                branch: branch,
-            })
-            return ({ rc: "00", rm: "success", data: newTransaction })
-        } catch (error) {
-            logger.error(error)
-            return (error)
-        }
-    }
-
-    static async inputNewTransaction(req = express.request) {
-        try {
-            logger.info('input new Transaction ', new Date().addHours(8))
-
-            var user = req.body.user
-            var customer = req.body.customer
-            var product = req.body.product
-            var payment = req.body.payment
-            var amount = req.body.amount
-            var status = req.body.status
-            var data = req.body.data
-            var branch = req.body.branch
-
-            var dataparse = JSON.parse(data)
-
-            var checkcustomer = await dbmodel.customer.findOne({ where: { phone_number: customer } })
-            if (!checkcustomer) {
-                logger.info('new customer')
-                var newCustomer = await dbmodel.customer.create({
-                    cr_time: new Date().addHours(8),
-                    mod_time: new Date().addHours(8),
-                    fullname: dataparse.customername,
-                    phone_number: customer,
-                    address: dataparse.customeraddress
-                })
-                logger.info(newCustomer)
-            }
-
-            var newTransaction = await dbmodel.transaction.create({
-                cr_time: new Date().addHours(8),
-                mod_time: new Date().addHours(8),
-                user: user,
-                customer: customer,
+                customer: checkcustomer.phone_number,
                 product: product,
                 payment: payment,
                 amount: amount,

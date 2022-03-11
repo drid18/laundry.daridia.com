@@ -770,6 +770,7 @@ async function inputNewTransaction(phone_number, isNewMember) {
                 <label for="floatingInput">Nomor Pelanggan</label>
                 <div class="d-grid gap-2">
                     <button id="trx-random-phone" type="button" class="btn btn-sm btn-primary">Acak</button>
+                    <small id="random-button-label">Pilih acak jika nomor hp tidak ada</small>
                 </div>
             </div>
             <div class="form-floating mb-3">
@@ -779,6 +780,7 @@ async function inputNewTransaction(phone_number, isNewMember) {
             <div class="form-floating mb-3">
                 <input type="text" class="form-control" id="input-customer-address" value="${trx_address}" />
                 <label for="input-customer-address">Alamat Pelanggan</label>
+                <small>Alamat dapat diisi dengan region. misal: Puuwatu, Anduonohu</small>
             </div>
             <hr />
             <div id="transaction-container">
@@ -809,12 +811,14 @@ async function inputNewTransaction(phone_number, isNewMember) {
                 <h6 id="input-data-amount"></h6>
             </div>
 
+            <div id="input-alert" class="text-danger border rounded p-2 mb-2"></div>
+
             <div class="mb-3">
                 <button id="confirmButton" type="button" class="btn btn-outline-dark">Input</button>
                 <button id="cancelButton" type="button" class="btn btn-outline-dark">Batalkan</button>
             </div>
 
-            <div id="input-alert" class="text-danger"></div>
+            
         `
     );
 
@@ -842,9 +846,10 @@ async function inputNewTransaction(phone_number, isNewMember) {
         $("#input-customer-address").prop("disabled", false);
     } else {
         $("#trx-random-phone").hide()
+        $("#random-button-label").hide()
         $("#input-customer-number").prop("disabled", true);
         $("#input-customer-name").prop("disabled", true);
-        $("#input-customer-address").prop("disabled", true);
+        // $("#input-customer-address").prop("disabled", true);
     }
 
     var trxCount = 0;
@@ -996,17 +1001,17 @@ async function inputNewTransaction(phone_number, isNewMember) {
 
         if ($("#input-customer-number").val() === "" || $("#input-customer-name").val() === "" || $("#input-customer-address").val() === "") {
             $("#input-alert").html(`
-                Nama dan Nomor Pelanggan tidak boleh kosong
+                Nama, Nomor dan Alamat Pelanggan tidak boleh kosong
                 <br> Pastikan data diisi dengan benar
-                <br><br>
+                <hr>
                 <small>Catatan:<br> 
-                Jika pelanggan baru dan nomor telp tidak ada maka dapat mengklik tombol acak,sebisa mungkin nomor telp diisi <br><br>
+                Jika pelanggan baru dan nomor telp tidak ada maka dapat mengklik tombol acak,sebisa mungkin nomor telp diisi <br>
                 Alamat dapat diisi dengan region. misal: Puuwatu, Anduonohu
-                <br><br>
-                Jika Nama dan Nomor kosong, maka edit terlebih dahulu pelanggan tersebut melalui menu pelanggan
+                <br>
+                Jika Pelanggan Lama dan Nama atau Nomor kosong, maka edit terlebih dahulu pelanggan tersebut melalui menu pelanggan
                 </small>
             `);
-            setTimeout(() => {
+            setTimeout(() => {  
                 $("#input-alert").html(``);
             }, 10000);
             return;
@@ -1017,7 +1022,7 @@ async function inputNewTransaction(phone_number, isNewMember) {
             url: "/service/transaction/add",
             headers: { "Content-Type": "application/json" },
             data: {
-                user: "All User",
+                user: session.userid,
                 customer: $("#input-customer-number").val(),
                 product: JSON.stringify(product),
                 payment: 0,
@@ -1483,7 +1488,7 @@ async function deleteTransaction(data) {
                 <div class="mb-3">
                     <hr />
                     <b><small>Pelanggan</small></b>
-                    <p>${data[0].customer}</p>
+                    <p>${data[0].customer}<br>${data[0].data.customername}</p>
                     <b><small>Jumlah Bayar</small></b>
                     <p>${data[0].amount}</p>
                     <b><small>Status Bayar</small></b>
