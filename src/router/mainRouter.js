@@ -20,11 +20,14 @@ class mainRouter {
             logger.info("query: " + JSON.stringify(req.query))
             logger.info("body : " + JSON.stringify(req.body))
             var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+            var activity_user = null
+            if (req.session.userid) activity_user = req.session.userid
             var activity = await dbmodel.activity.create({
                 path: req.path,
                 ip: ip,
                 req_time: new Date(),
-                req_body: JSON.stringify(req.query)
+                req_body: JSON.stringify(req.body),
+                info: activity_user
             })
             await activity.save()
 
