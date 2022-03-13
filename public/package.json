@@ -21,6 +21,7 @@
     "file-saver": "^2.0.5",
     "font-awesome": "^4.7.0",
     "jquery": "^3.6.0",
+    "jszip": "^3.7.1",
     "lit-html": "^2.0.2",
     "sweetalert2": "^11.1.10"
   }

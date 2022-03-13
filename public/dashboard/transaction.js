@@ -339,7 +339,10 @@ async function setTransactionData(url, dataparam) {
         // columnDefs: [
         //     { "className": "dt-center", "targets": "_all" }
         // ],
-        dom: "frtp",
+        dom: "frtp<'mt-2'B>",
+        buttons: [
+            'excel', 'print'
+        ],
         drawCallback: function (settings) {
             setTimeout(() => {
                 swal.close();

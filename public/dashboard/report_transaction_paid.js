@@ -144,7 +144,10 @@ async function rendertable() {
             { title: "Harga", data: 'realamount', width: '100px' },
             { title: "Jumlah Bayar", data: 'amount', width: '150px' },
         ],
-        dom: "frtp",
+        dom: "frtp<'mt-2'B>",
+        buttons: [
+            'excel', 'print'
+        ],
         "columnDefs": [{
             "searchable": false,
             "orderable": false,

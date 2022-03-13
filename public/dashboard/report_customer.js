@@ -74,7 +74,10 @@ async function rendertable() {
             { title: "Jumlah Transaksi", data: 'sum_trx', width: '150px' },
             { title: "alamat", data: 'address', width: '150px' }
         ],
-        dom: "frtp",
+        dom: "frtp<'mt-2'B>",
+        buttons: [
+            'excel', 'print'
+        ],
         "columnDefs": [{
             "searchable": false,
             "orderable": false,

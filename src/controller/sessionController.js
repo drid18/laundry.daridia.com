@@ -4,13 +4,18 @@ const { dbmodel } = require('../model/db')
 const logger = log4js.getLogger(require('path').basename(__filename, '.js'))
 const axios = require("axios").default;
 const { cs } = require('../utility/constants');
+const forge = require("node-forge");
+
+var md = forge.md.md5.create();
 
 class sessionController {
     static async login(req = express.request) {
         try {
             var username = req.body.username
             var password = req.body.password
-            var userlogin = await dbmodel.userapp.findOne({ where: { username: username, password: password } })
+            md.update(password);
+            // console.log(md.digest().toHex());
+            var userlogin = await dbmodel.userapp.findOne({ where: { username: username, password: md.digest().toHex() } })
             if (userlogin) {
                 if (userlogin.status === 0) {
                     return ({ rc: "99", rm: "Pengguna anda belum aktif, silahkan hubungi admin untuk mengaktifkan akun anda" })
