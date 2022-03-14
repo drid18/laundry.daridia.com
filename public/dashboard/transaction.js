@@ -8,6 +8,8 @@ var table = null;
 var branch = null;
 var branchdata = null;
 
+var trxdata = null;
+
 export async function transaction() {
     // var branch = sessionStorage.getItem("branch")
     console.log(branch);
@@ -339,7 +341,10 @@ async function setTransactionData(url, dataparam) {
         // columnDefs: [
         //     { "className": "dt-center", "targets": "_all" }
         // ],
-        dom: "frtp",
+        dom: "frtp<'mt-2'B>",
+        buttons: [
+            'excel', 'print'
+        ],
         drawCallback: function (settings) {
             setTimeout(() => {
                 swal.close();

@@ -1,43 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Bootstrap CSS -->
-    <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css" />
-    <link rel="stylesheet" href="../node_modules/datatables.net-bs5/css/dataTables.bootstrap5.css" />
-    <link rel="stylesheet" href="../node_modules/datatables.net-select-bs5/css/select.bootstrap5.css" />
-    <link rel="stylesheet" href="../node_modules/datatables.net-buttons-bs5/css/buttons.bootstrap5.css" />
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Expires" content="0" />
 
-    <link rel="stylesheet" href="../style.css">
+        <!-- Bootstrap CSS -->
+        <link href="../node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+        <link rel="stylesheet" href="../node_modules/font-awesome/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="../node_modules/datatables.net-bs5/css/dataTables.bootstrap5.css" />
+        <link rel="stylesheet" href="../node_modules/datatables.net-select-bs5/css/select.bootstrap5.css" />
+        <link rel="stylesheet" href="../node_modules/datatables.net-buttons-bs5/css/buttons.bootstrap5.css" />
 
-    <title>Laundry DariDIA</title>
-  </head>
-  <body>
-    <div id="sidebar" class="fixed-top bg-light shadow rounded mt-2 ms-2" style="max-width: 280px; height: 95%"></div>
+        <link rel="stylesheet" href="../style.css" />
 
-    <div id="bottombar" class="fixed-bottom bg-light shadow rounded ms-2 me-2" style="height: 50px; display: none"></div>
+        <title>Laundry DariDIA</title>
+    </head>
+    <body>
 
-    <div id="bottomoffcanvas" class="offcanvas offcanvas-bottom" tabindex="-1" aria-labelledby="offcanvasBottomLabel" style="height: 500px;"></div>
+        <div id="hiddencontainer" style="display: none;"></div>
 
-    <div id="content-container" class="overflow-auto mt-5 mb-5 me-2" style="margin-left: 300px">
-    </div>
+        <div id="modal-container">
+            <div class="modal" id="modal-container-id" tabindex="-1">
+                <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <!-- <h5 class="modal-title">Modal title</h5> -->
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body"></div>
+                        <div class="modal-footer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
-    <script src="../node_modules/chart.js/dist/chart.min.js"></script>
-    <script src="../node_modules/axios/dist/axios.js"></script>
-    <script src="../node_modules/file-saver/dist/FileSaver.js"></script>
-    <script src="../node_modules/datatables.net/js/jquery.dataTables.min.js"></script>
-    <script src="../node_modules/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
-    <script src="../node_modules/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
-    <script src="../node_modules/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js"></script>
-    <script src="../node_modules/datatables.net-select/js/dataTables.select.min.js"></script>
-    <script src="../node_modules/datatables.net-select-bs5/js/select.bootstrap5.min.js"></script>
-    <script src="../node_modules/sweetalert2/dist/sweetalert2.all.min.js"></script>
-    <script src="./index.js" type="module"></script>
-  </body>
+        <div id="sidebar" class="fixed-top bg-light shadow rounded mt-2 ms-2" style="max-width: 280px; height: 95%"></div>
+
+        <div id="bottombar" class="fixed-bottom bg-light shadow rounded ms-2 me-2" style="height: 50px; display: none"></div>
+
+        <div id="bottomoffcanvas" class="offcanvas offcanvas-bottom" tabindex="-1" aria-labelledby="offcanvasBottomLabel" style="height: 500px"></div>
+
+        <div id="content-container" class="overflow-auto mt-5 mb-5 me-2" style="margin-left: 300px"></div>
+
+        <script src="../node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+        <script src="../node_modules/chart.js/dist/chart.min.js"></script>
+        <script src="../node_modules/axios/dist/axios.js"></script>
+        <script src="../node_modules/file-saver/dist/FileSaver.js"></script>
+        <script src="../node_modules/datatables.net/js/jquery.dataTables.min.js"></script>
+        <script src="../node_modules/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
+        <script src="../node_modules/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+        <script src="../node_modules/datatables.net-buttons/js/buttons.html5.min.js"></script>
+        <script src="../node_modules/datatables.net-buttons/js/buttons.print.min.js"></script>
+        <script src="../node_modules/datatables.net-buttons/js/buttons.flash.min.js"></script>
+        <script src="../node_modules/datatables.net-buttons/js/buttons.colVis.min.js"></script>
+        <script src="../node_modules/jszip/dist/jszip.min.js"></script>
+        <script src="../node_modules/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js"></script>
+        <script src="../node_modules/datatables.net-select/js/dataTables.select.min.js"></script>
+        <script src="../node_modules/datatables.net-select-bs5/js/select.bootstrap5.min.js"></script>
+        <script src="../node_modules/sweetalert2/dist/sweetalert2.all.min.js"></script>
+        <script src="./index.js?v=1.15" type="module"></script>
+    </body>
 </html>
