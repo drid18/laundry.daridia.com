@@ -6,15 +6,14 @@ const axios = require("axios").default;
 const { cs } = require('../utility/constants');
 const forge = require("node-forge");
 
-var md = forge.md.md5.create();
-
 class sessionController {
     static async login(req = express.request) {
         try {
             var username = req.body.username
             var password = req.body.password
+            var md = forge.md.md5.create();
             md.update(password);
-            // console.log(md.digest().toHex());
+            console.log(md.digest().toHex());
             var userlogin = await dbmodel.userapp.findOne({ where: { username: username, password: md.digest().toHex() } })
             if (userlogin) {
                 if (userlogin.status === 0) {

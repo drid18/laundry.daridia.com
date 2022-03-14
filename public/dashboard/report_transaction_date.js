@@ -1,15 +1,17 @@
 import { render, html } from "../node_modules/lit-html/lit-html.js";
 import { swal } from "../utility/swal.js";
+import { getcurrentdate } from "../utility/utility.js";
 import { session } from "./index.js";
 
 var tableTransactionDate = null;
 var totalamountpaiddate = 0;
 var branch = null;
+var reportTransactionByDate = null;
 
 export async function reportTransactionDate(container) {
     render(
         html`
-            <h1 class="text-center mt-3">Laporan Transaksi</h1>
+            <h1 class="text-center mt-3">Laporan Transaksi Masuk</h1>
             <hr />
             <p class="text-center">Transaksi Per Tanggal Order Masuk</p>
             <div>
@@ -44,9 +46,9 @@ export async function reportTransactionDate(container) {
                     <table id="table-data-transaction-date" class="table"></table>
                 </div>
             </div>
-            <!-- <div>
-                <button id="reportTransactionDate-download" type="button" class="btn btn-primary">Download Excel</button>
-            </div> -->
+            <div>
+                <button id="reportTransactionDate-download" type="button" class="btn btn-primary">Excel</button>
+            </div>
             <hr />
             <div id="report-transaction-date-detail"></div>
         `,
@@ -117,35 +119,44 @@ async function rendertable() {
                             element.payment === 0 ? '<p class="bg-secondary rounded text-center text-white">Belum Lunas</p>' : '<p class="bg-primary rounded text-center text-white">Lunas</p>';
 
                         /* START data product row */
-                        var productList = element.data.datatrx;
-                        if (productList) {
-                            element.product_view = "<ol>";
-                            for (let x = 0; x < productList.length; x++) {
-                                element.product_view += `<li>${productList[x].productname}</li>`;
+                        var productList = null;
+                        try {
+                            productList = JSON.parse(element.data).datatrx;
+                            // var productList = JSON.parse(element.data).datatrx ? JSON.parse(element.data).datatrx : null ;
+                            if (productList) {
+                                element.product_view = "<ol>";
+                                for (let x = 0; x < productList.length; x++) {
+                                    element.product_view += `<li>${productList[x].productname}</li>`;
+                                }
+                                element.product_view += "</ol>";
+
+                                element.kg_view = "<ol>";
+                                for (let x = 0; x < productList.length; x++) {
+                                    element.kg_view += `<li>${productList[x].kg} Kg</li>`;
+                                }
+                                element.kg_view += "</ol>";
+
+                                var data = JSON.parse(element.data);
+                                element.discount = data.discont + "%";
+                                element.realamount = data.realamount;
+                                element.costumername = data.customername;
+                            } else {
+                                element.product_view = "Invalid Data!";
+                                element.kg_view = "Invalid Data!";
+
+                                element.discount = "Invalid Data!";
+                                element.realamount = "Invalid Data!";
+                                element.costumername = "Invalid Data!";
                             }
-                            element.product_view += "</ol>";
-
-                            element.kg_view = "<ol>";
-                            for (let x = 0; x < productList.length; x++) {
-                                element.kg_view += `<li>${productList[x].kg} Kg</li>`;
-                            }
-                            element.kg_view += "</ol>";
-
-                            element.discount = element.data.discont + "%";
-                            element.realamount = element.data.realamount;
-                            element.costumername = data.customername;
-                        } else {
-                            element.product_view = "Invalid Data!";
-                            element.kg_view = "Invalid Data!";
-
-                            element.discount = "Invalid Data!";
-                            element.realamount = "Invalid Data!";
-                            element.costumername = "Invalid Data!";
+                        } catch (error) {
+                            console.error(error);
                         }
                         /* END */
                     }
+                    reportTransactionByDate = dataset;
                     return dataset;
                 } catch (error) {
+                    console.error(error);
                     return [];
                 }
             },
@@ -165,10 +176,7 @@ async function rendertable() {
             { title: "Harga", data: "realamount", width: "100px" },
             { title: "Jumlah Bayar", data: "amount", width: "150px" },
         ],
-        dom: "frtp<'mt-2'B>",
-        buttons: [
-            'excel', 'print'
-        ],
+        dom: "frtp",
         columnDefs: [
             {
                 searchable: false,
@@ -216,102 +224,83 @@ async function rendertable() {
 }
 
 async function downloadExcel() {
+    /*
+            { title: "No", data: null, width: "50px" },
+            { title: "Cabang", data: "name", width: "200px" },
+            { title: "Tanggal Transaksi", data: "cr_time_view", width: "150px" },
+            { title: "Status", data: "status_view", width: "100px" },
+            { title: "Pembayaran", data: "payment_view", width: "100px" },
+            { title: "No Pelanggan", data: "customer", width: "100px" },
+            { title: "Nama Pelanggan", data: "costumername", width: "100px" },
+            { title: "Produk", data: "product_view", width: "150px" },
+            { title: "Berat", data: "kg_view", width: "50px" },
+            { title: "Diskon", data: "discount", width: "100px" },
+            { title: "Harga", data: "realamount", width: "100px" },
+            { title: "Jumlah Bayar", data: "amount", width: "150px" },
+    */
     $("#reportTransactionDate-download").on("click", async function (params) {
-        var myModal = new bootstrap.Modal(document.getElementById("modal-container-id"), {
-            keyboard: false,
-        });
-
-        var result = await new Promise(function (resolve, reject) {
-            var branchurl = branch ? "?b=" + branch : "";
-            var reqOptions = {
-                url: "/service/report/transaction/bytrx" + branchurl,
-                method: "POST",
-            };
-
-            axios.request(reqOptions).then(function (response) {
-                console.log(response.data);
-                var resultdata = response.data.data;
-                for (let x = 0; x < resultdata.length; x++) {
-                    const element = resultdata[x];
-                    const data = JSON.parse(element.data);
-                    /*
-                    {\"kg\":\"4.5\",\"price\":\"6000\",\"productname\":\"KG. CUCI LIPAT BIASA/LAMA(TANPA SETRIKA)\",\"customername\":\"aditya dwi laksono\",\"customeraddress\":\"jln sao-sao\"}
-                    { title: "No", data: null, width: "50px" },
-                    { title: "Cabang", data: "name", width: "200px" },
-                    { title: "Tanggal Transaksi", data: "cr_time_view", width: "150px" },
-                    { title: "Status", data: "status_view", width: "100px" },
-                    { title: "Pembayaran", data: "payment_view", width: "100px" },
-                    { title: "No Pelanggan", data: "customer", width: "100px" },
-                    { title: "Nama Pelanggan", data: "costumername", width: "100px" },
-                    { title: "Produk", data: "product_view", width: "150px" },
-                    { title: "Berat", data: "kg_view", width: "50px" },
-                    { title: "Diskon", data: "discount", width: "100px" },
-                    { title: "Harga", data: "realamount", width: "100px" },
-                    { title: "Jumlah Bayar", data: "amount", width: "150px" },
-                    */
-                    element.cabang = element.name;
-                    element.trxdate = element.cr_time.substring(0, 16);
-                    element.status_view = element.status === 0 ? "Di Proses" : element.status === 1 ? "Menungu Pengambilan" : "Selesai";
-                    element.payment_view = element.payment === 0 ? "Belum Lunas" : "Lunas";
-                    element.customer_name = data.customername;
-                }
-                resolve(resultdata);
-            });
-        });
-
-        // console.log();
-
         render(
             html`
-                <div style="min-width:100%">
-                    <table id="download-generated-table" class="table">
-                        <!-- <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col">First</th>
-                                <th scope="col">Last</th>
-                                <th scope="col">Handle</th>
-                                <th scope="col">Handle</th>
-                            </tr>
-                        </thead> -->
-                        <tbody>
-                            ${result.map(
-                                (item) => html`
-                                    <tr>
-                                        <td>${item.cabang}</td>
-                                        <td>${item.trxdate}</td>
-                                        <td>${item.status_view}</td>
-                                        <td>${item.payment_view}</td>
-                                        <td>${item.customer_name}</td>
-                                    </tr>
-                                `
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                <table id="export-to-excel-reportTransactionDate-download" class="table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Cabang</th>
+                            <th>Tanggal Transaksi</th>
+                            <th>Status</th>
+                            <th>Pembayaran</th>
+                            <th>No Pelanggan</th>
+                            <th>Produk</th>
+                            <th>Berat</th>
+                            <th>Diskon</th>
+                            <th>Harga</th>
+                            <th>Jumlah Bayar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${reportTransactionByDate.map(
+                            (item, index) => html`
+                                <tr>
+                                    <td>${index + 1}</td>
+                                    <td>${item.name}</td>
+                                    <td>${item.cr_time}</td>
+                                    <td>${item.status}</td>
+                                    <td>${item.payment}</td>
+                                    <td>${item.customer}</td>
+                                    <td>${item.costumername}</td>
+                                    <td>
+                                        ${item.product_view
+                                            .replace(/<li>/g, "[")
+                                            .replace(/<\/li>/g, "]")
+                                            .replace(/<ol>/g, "")
+                                            .replace(/<\/ol>/g, "")}
+                                    </td>
+                                    <td>
+                                        ${item.kg_view
+                                            .replace(/<li>/g, "[")
+                                            .replace(/<\/li>/g, "]")
+                                            .replace(/<ol>/g, "")
+                                            .replace(/<\/ol>/g, "")}
+                                    </td>
+                                    <td>${item.discount}</td>
+                                    <td>${item.realamount}</td>
+                                    <td>${item.amount}</td>
+                                </tr>
+                            `
+                        )}
+                    </tbody>
+                </table>
             `,
-            $(".modal-body")[0]
+            document.getElementById("hiddencontainer")
         );
-
-        render(
-            html`
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button id="trigger-download-excel" type="button" class="btn btn-primary">Download</button>
-            `,
-            $(".modal-footer")[0]
-        );
-        myModal.show();
-
-        $("#trigger-download-excel").on("click", function (params) {
-            triggerDownload("download.xls");
-        });
+        triggerDownload(`LaporanTransaksiBerdasarkanTanggal_${getcurrentdate()}.xls`);
     });
 }
 
 function triggerDownload(filename) {
     var downloadLink;
     var dataType = "application/vnd.ms-excel";
-    var tableSelect = document.getElementById("download-generated-table");
+    var tableSelect = document.getElementById("export-to-excel-reportTransactionDate-download");
     var tableHTML = tableSelect.outerHTML.replace(/ /g, "%20");
 
     // Specify file name

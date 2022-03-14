@@ -8,6 +8,8 @@ var table = null;
 var branch = null;
 var branchdata = null;
 
+var trxdata = null;
+
 export async function transaction() {
     // var branch = sessionStorage.getItem("branch")
     console.log(branch);

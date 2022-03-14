@@ -36,6 +36,7 @@ class mainRouter {
                 case '/service/test': response = await mainController.servertest(req); break;
                 case '/service/user/registration': response = await userController.registerUser(req); break;
                 case '/service/user/update': response = await userController.updateUser(req); break;
+                case '/service/user/updatepass': response = await userController.updatePassword(req); break;
                 case '/service/user/delete': response = await userController.deleteUser(req); break;
                 case '/service/user/setstatus': response = await userController.setStatus(req); break;
                 case '/service/user/setconfig': response = await userController.setUserConfig(req); break;
