@@ -159,12 +159,15 @@ class transactionController {
             var [transaction, meta] = await _dbmodel.query(/*sql*/`
                 select
                     t.*,
+                    u.fullname,
                     b.name as branch_name,
                     b.address as branch_address
                 from
                     \`transaction\` t
                 left join branch b on
                     b.id = t.branch
+                left join userapp u on 
+                    u.id = t.\`user\` 
             `)
             return ({ rc: "00", rm: "success", data: transaction })
         } catch (error) {
@@ -179,11 +182,14 @@ class transactionController {
             var [transaction, meta] = await _dbmodel.query(/*sql */`
                 select
                     t.*,
+                    u.fullname,
                     b.name as branch_name,
                     b.address as branch_address 
                 from \`transaction\` t 
                 left join branch b on
                     b.id = t.branch
+                left join userapp u on 
+                    u.id = t.\`user\` 
                 where DATE(t.cr_time) = '${currentdate}'
                 ${req.query.b ? 'and t.branch=' + req.query.b : ''}
             `)
@@ -204,12 +210,15 @@ class transactionController {
             var query = /*sql */`
                 select
                     t.*,
+                    u.fullname,
                     b.name as branch_name,
                     b.address as branch_address
                 from
                     \`transaction\` t
                 left join branch b on
                     b.id = t.branch
+                left join userapp u on 
+                    u.id = t.\`user\` 
                 where
                     DATE(cr_time) between '${startdate}' and '${enddate}'
                     ${status !== '99' ? `and t.status = ${status}` : ''}
@@ -229,12 +238,15 @@ class transactionController {
             var query = /*sql */`
                 select
                     t.*,
+                    u.fullname,
                     b.name as branch_name,
                     b.address as branch_address
                 from
                     \`transaction\` t
                 left join branch b on
                     b.id = t.branch
+                left join userapp u on 
+                    u.id = t.\`user\`
                 where
                    t.status <> 2
                    ${req.query.b ? 'and t.branch=' + req.query.b : ''}
@@ -254,11 +266,14 @@ class transactionController {
             var [transaction, meta] = await _dbmodel.query(/*sql */`
                 select 
                     t.*,
+                    u.fullname,
                     b.name as branch_name,
                     b.address as branch_address
                 from \`transaction\` t
                 left join branch b on
-                    b.id = t.branch 
+                    b.id = t.branch
+                left join userapp u on 
+	                u.id = t.\`user\`  
                 where t.status != 1
                 ${req.query.b ? 'and t.branch=' + req.query.b : ''}
                 `)

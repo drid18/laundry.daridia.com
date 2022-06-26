@@ -220,6 +220,7 @@ async function setTransactionData(url, dataparam) {
             { title: "id", data: "id" },
             { title: "Cabang", data: "branch_name_view", width: "120px" },
             { title: "tanggal transaksi", data: "cr_time_view", width: "120px" },
+            { title: "kasir", data: "fullname", width: "120px" },
             { title: "tanggal selesai", data: "finish_date_view", width: "120px" },
             { title: "status", data: "status_view", width: "120px" },
             { title: "tanggal lunas", data: "paid_date_view", width: "150px" },
